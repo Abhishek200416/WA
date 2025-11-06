@@ -66,8 +66,11 @@ const AuthScreen = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail,
-          otp: otp
+          [authType === 'phone' ? 'phone_number' : 'email']: phoneOrEmail,
+          otp: otp,
+          device_name: 'Web Browser',
+          device_type: 'web',
+          public_key: 'demo_public_key_' + Date.now()
         })
       });
 
@@ -81,7 +84,7 @@ const AuthScreen = () => {
           toast.success('Welcome back!');
         }
       } else {
-        toast.error('Invalid OTP');
+        toast.error(data.detail || 'Invalid OTP');
       }
     } catch (error) {
       toast.error('Error: ' + error.message);
