@@ -15,6 +15,7 @@ import DesktopLayout from './components/Layout/DesktopLayout';
 import MobileLayout from './components/Layout/MobileLayout';
 import IOSNavBar from './components/Navigation/IOSNavBar';
 import AndroidTopBar from './components/Navigation/AndroidTopBar';
+import InstallPrompt from './components/PWA/InstallPrompt';
 import { Toaster } from '@/components/ui/sonner';
 
 function AppContent() {
