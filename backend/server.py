@@ -780,6 +780,6 @@ logger = logging.getLogger(__name__)
 async def shutdown_db_client():
     client.close()
 
-# Mount Socket.IO on the FastAPI app instead of wrapping it
-# This allows both HTTP routes and Socket.IO to work together
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app, socketio_path='socket.io')
+# Mount Socket.IO on the FastAPI app
+# The Socket.IO ASGI app will handle /socket.io/* paths and pass everything else to FastAPI
+app = socketio.ASGIApp(sio, other_asgi_app=app, socketio_path='socket.io')
