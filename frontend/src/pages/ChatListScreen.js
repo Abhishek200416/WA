@@ -127,9 +127,26 @@ const ChatListScreen = () => {
   };
 
   const filteredChats = chats.filter(chat => {
-    if (!searchQuery) return true;
-    const name = chat.type === 'group' ? chat.name : (chat.otherUser?.name || chat.otherUser?.username || '');
-    return name.toLowerCase().includes(searchQuery.toLowerCase());
+    // Filter by search query
+    if (searchQuery) {
+      const name = chat.type === 'group' ? chat.name : (chat.otherUser?.name || chat.otherUser?.username || '');
+      if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+    }
+    
+    // Filter by active filter
+    if (activeFilter === 'unread' && !chat.unread_count) {
+      return false;
+    }
+    if (activeFilter === 'favourites' && !chat.is_favourite) {
+      return false;
+    }
+    if (activeFilter === 'groups' && chat.type !== 'group') {
+      return false;
+    }
+    
+    return true;
   });
 
   // Desktop Header
