@@ -250,8 +250,8 @@ frontend:
         comment: "IMPLEMENTED: iOS bottom nav (IOSNavBar), Android top nav (AndroidTopBar), Desktop 2-column sidebar. Platform detection working."
 
   - task: "WhatsApp-like design system"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "frontend/src"
     stuck_count: 0
     priority: "high"
@@ -260,6 +260,21 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Using shadcn/ui but needs WhatsApp colors, fonts, spacing."
+      - working: true
+        agent: "main"
+        comment: "COMPLETE: WhatsApp design system with exact colors (#25D366, #00A884, #DCF8C6), fonts (Segoe UI, Roboto), message bubbles, read receipts, unread badges, typing indicators."
+  
+  - task: "PWA (Progressive Web App) Support"
+    implemented: true
+    working: true
+    file: "frontend/public/manifest.json, frontend/src/components/PWA/InstallPrompt.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "IMPLEMENTED: manifest.json, service-worker.js, InstallPrompt component with green banner, iOS/Android meta tags. Users can install WA as native app."
 
 metadata:
   created_by: "main_agent"
