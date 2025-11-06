@@ -6,16 +6,29 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Prevent zoom from affecting layout - only scale text */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
+  /* Fixed font size base */
+  font-size: 16px;
 }
 
 .App {
   min-height: 100vh;
   background: #f0f2f5;
+  /* Prevent entire app from scaling with zoom */
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* iOS Styles */
