@@ -9,7 +9,7 @@
       "status": "PASS",
       "details": "User ID: c7356b77-73f4-4069-bc75-bd97fbf71374",
       "error": "",
-      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+1111111111\", \"otp\": \"123456\", \"device_name\": \"Alice's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_alice\"}'",
+      "curl_command": "curl -X POST https://messagemate-138.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+1111111111\", \"otp\": \"123456\", \"device_name\": \"Alice's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_alice\"}'",
       "timestamp": "2025-11-06T09:29:20.092040"
     },
     {
@@ -17,7 +17,7 @@
       "status": "PASS",
       "details": "User ID: aee99696-acd9-4329-bf0a-e00f5c3e8c8e",
       "error": "",
-      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\", \"otp\": \"123456\", \"device_name\": \"Bob's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_bob\"}'",
+      "curl_command": "curl -X POST https://messagemate-138.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\", \"otp\": \"123456\", \"device_name\": \"Bob's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_bob\"}'",
       "timestamp": "2025-11-06T09:29:20.222941"
     },
     {
@@ -25,7 +25,7 @@
       "status": "PASS",
       "details": "User ID: 645c2a8a-8053-4639-a58d-870b1b24cd3d",
       "error": "",
-      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+3333333333\", \"otp\": \"123456\", \"device_name\": \"Carol's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_carol\"}'",
+      "curl_command": "curl -X POST https://messagemate-138.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+3333333333\", \"otp\": \"123456\", \"device_name\": \"Carol's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_carol\"}'",
       "timestamp": "2025-11-06T09:29:20.339667"
     },
     {
@@ -33,7 +33,7 @@
       "status": "PASS",
       "details": "Alice has 1 contacts",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/contacts?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\"}'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/contacts?user_id=messagemate-138' -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\"}'",
       "timestamp": "2025-11-06T09:29:20.545081"
     },
     {
@@ -41,7 +41,7 @@
       "status": "PASS",
       "details": "Chat ID: 097d97ed-198f-4438-84dd-296119e164a4",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/chats?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"type\": \"direct\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\"]}'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/chats?user_id=messagemate-138' -H 'Content-Type: application/json' -d '{\"type\": \"direct\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\"]}'",
       "timestamp": "2025-11-06T09:29:20.613469"
     },
     {
@@ -49,7 +49,7 @@
       "status": "PASS",
       "details": "Retrieved 2 messages",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/messages?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"chat_id\": \"097d97ed-198f-4438-84dd-296119e164a4\", \"content\": \"Hello Bob! This is Alice testing the messaging system.\", \"message_type\": \"text\"}'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/messages?user_id=messagemate-138' -H 'Content-Type: application/json' -d '{\"chat_id\": \"097d97ed-198f-4438-84dd-296119e164a4\", \"content\": \"Hello Bob! This is Alice testing the messaging system.\", \"message_type\": \"text\"}'",
       "timestamp": "2025-11-06T09:29:20.782653"
     },
     {
@@ -57,7 +57,7 @@
       "status": "PASS",
       "details": "All operations successful",
       "error": "",
-      "curl_command": "curl -X PATCH 'https://quickchat-380.preview.emergentagent.com/api/messages/3b4ab1ca-fd5e-49da-93b5-72c9b5d2284a?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"content\": \"Hello Bob! This is Alice testing the EDITED messaging system.\"}'",
+      "curl_command": "curl -X PATCH 'https://messagemate-138.preview.emergentagent.com/api/messages/3b4ab1ca-fd5e-49da-93b5-72c9b5d2284a?user_id=messagemate-138' -H 'Content-Type: application/json' -d '{\"content\": \"Hello Bob! This is Alice testing the EDITED messaging system.\"}'",
       "timestamp": "2025-11-06T09:29:20.962216"
     },
     {
@@ -65,7 +65,7 @@
       "status": "PASS",
       "details": "Group created with invite: wa://cdcb4029",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/chats?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"type\": \"group\", \"name\": \"WA Test Group Chat\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\", \"645c2a8a-8053-4639-a58d-870b1b24cd3d\"]}'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/chats?user_id=messagemate-138' -H 'Content-Type: application/json' -d '{\"type\": \"group\", \"name\": \"WA Test Group Chat\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\", \"645c2a8a-8053-4639-a58d-870b1b24cd3d\"]}'",
       "timestamp": "2025-11-06T09:29:21.079554"
     },
     {
@@ -73,7 +73,7 @@
       "status": "PASS",
       "details": "File uploaded and sent: 840e861d-9fac-4d15-9676-e6db96a9e5ab",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/upload?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -F 'file=@test_image.jpg'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/upload?user_id=messagemate-138' -F 'file=@test_image.jpg'",
       "timestamp": "2025-11-06T09:29:21.354856"
     },
     {
@@ -81,7 +81,7 @@
       "status": "PASS",
       "details": "Status created, Bob sees 1 statuses",
       "error": "",
-      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/status' -G -d 'user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -d 'content_type=text' -d 'content=Alice's test status - having a great day testing WA!'",
+      "curl_command": "curl -X POST 'https://messagemate-138.preview.emergentagent.com/api/status' -G -d 'user_id=messagemate-138' -d 'content_type=text' -d 'content=Alice's test status - having a great day testing WA!'",
       "timestamp": "2025-11-06T09:29:21.543293"
     },
     {
@@ -89,7 +89,7 @@
       "status": "PASS",
       "details": "Socket.IO endpoint accessible",
       "error": "",
-      "curl_command": "curl -X GET 'https://quickchat-380.preview.emergentagent.com/socket.io/'",
+      "curl_command": "curl -X GET 'https://messagemate-138.preview.emergentagent.com/socket.io/'",
       "timestamp": "2025-11-06T09:29:21.606425"
     }
   ],

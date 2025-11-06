@@ -12,7 +12,7 @@ import time
 import os
 
 class ComprehensiveWATest:
-    def __init__(self, base_url="https://quickchat-380.preview.emergentagent.com"):
+    def __init__(self, base_url="https://messagemate-138.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         
