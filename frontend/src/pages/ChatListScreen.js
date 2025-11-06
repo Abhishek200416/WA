@@ -213,6 +213,9 @@ const ChatListScreen = () => {
         </div>
       </div>
 
+      {/* Chat Filters */}
+      <ChatFilters onFilterChange={setActiveFilter} />
+
       {/* Chat List */}
       <ScrollArea className="flex-1">
         {filteredChats.length === 0 ? (
