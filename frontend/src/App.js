@@ -70,7 +70,7 @@ function AppContent() {
     );
   }
 
-  // Mobile layout (iOS/Android)
+  // Mobile layout (iOS/Android) with new bottom navigation
   return (
     <Routes>
       <Route path="/auth" element={!user ? <AuthScreen /> : <Navigate to="/" />} />
@@ -78,11 +78,14 @@ function AppContent() {
         path="/"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              {platform === 'android' && <AndroidTopBar />}
-              <ChatListScreen />
-              {platform === 'ios' && <IOSNavBar />}
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              {platform === 'android' && <AndroidHeader />}
+              <div className="flex-1 overflow-hidden">
+                <ChatListScreen />
+              </div>
+              {platform === 'android' && <AndroidBottomNav />}
+              {platform === 'ios' && <IOSBottomNav />}
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
@@ -92,9 +95,11 @@ function AppContent() {
         path="/chat/:chatId"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              <ChatScreen />
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              <div className="flex-1 overflow-hidden">
+                <ChatScreen />
+              </div>
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
@@ -104,11 +109,14 @@ function AppContent() {
         path="/status"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              {platform === 'android' && <AndroidTopBar title="Status" />}
-              <StatusScreen />
-              {platform === 'ios' && <IOSNavBar />}
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              {platform === 'android' && <AndroidHeader title="Status" />}
+              <div className="flex-1 overflow-hidden">
+                <StatusScreen />
+              </div>
+              {platform === 'android' && <AndroidBottomNav />}
+              {platform === 'ios' && <IOSBottomNav />}
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
@@ -118,11 +126,14 @@ function AppContent() {
         path="/settings"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              {platform === 'android' && <AndroidTopBar title="Settings" />}
-              <SettingsScreen />
-              {platform === 'ios' && <IOSNavBar />}
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              {platform === 'android' && <AndroidHeader title="Settings" />}
+              <div className="flex-1 overflow-hidden">
+                <SettingsScreen />
+              </div>
+              {platform === 'android' && <AndroidBottomNav />}
+              {platform === 'ios' && <IOSBottomNav />}
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
@@ -132,11 +143,14 @@ function AppContent() {
         path="/groups"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              {platform === 'android' && <AndroidTopBar title="Groups" />}
-              <GroupsScreen />
-              {platform === 'ios' && <IOSNavBar />}
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              {platform === 'android' && <AndroidHeader title="Groups" />}
+              <div className="flex-1 overflow-hidden">
+                <GroupsScreen />
+              </div>
+              {platform === 'android' && <AndroidBottomNav />}
+              {platform === 'ios' && <IOSBottomNav />}
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
@@ -146,11 +160,14 @@ function AppContent() {
         path="/calls"
         element={
           user ? (
-            <MobileLayout platform={platform}>
-              {platform === 'android' && <AndroidTopBar title="Calls" />}
-              <CallsScreen />
-              {platform === 'ios' && <IOSNavBar />}
-            </MobileLayout>
+            <div className="h-screen flex flex-col bg-[#111B21]">
+              {platform === 'android' && <AndroidHeader title="Calls" />}
+              <div className="flex-1 overflow-hidden">
+                <CallsScreen />
+              </div>
+              {platform === 'android' && <AndroidBottomNav />}
+              {platform === 'ios' && <IOSBottomNav />}
+            </div>
           ) : (
             <Navigate to="/auth" />
           )
