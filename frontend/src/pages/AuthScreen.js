@@ -1,120 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-import { Phone, Check, Loader2, Mail, User } from 'lucide-react';
-import axios from 'axios';
-import WALogo from '@/components/Branding/WALogo';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { MessageCircle, Phone, Mail, User, Info } from 'lucide-react';
+import WALogo from '../components/Branding/WALogo';
 
 const AuthScreen = () => {
-  const [step, setStep] = useState('welcome'); // welcome, phone, otp, profile
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [authMethod, setAuthMethod] = useState('phone'); // phone or email
+  const [step, setStep] = useState('welcome'); // welcome, input, otp, profile
+  const [authType, setAuthType] = useState('phone'); // phone or email
+  const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [profileData, setProfileData] = useState({
+    name: '',
+    username: '',
+    about: 'Hey there! I am using WA',
+    avatar: ''
+  });
   const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(0);
   const { login } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
 
   const handleRequestOTP = async () => {
-    if (authMethod === 'phone' && !phoneNumber.trim()) {
-      toast.error('Please enter your phone number');
-      return;
-    }
-    if (authMethod === 'email' && !email.trim()) {
-      toast.error('Please enter your email');
+    if (!phoneOrEmail) {
+      toast.error('Please enter your ' + (authType === 'phone' ? 'phone number' : 'email'));
       return;
     }
 
     setLoading(true);
     try {
-      const data = authMethod === 'phone' 
-        ? { phone_number: phoneNumber }
-        : { email: email };
-      
-      const response = await axios.post(`${API}/auth/request-otp`, data);
-      
-      toast.success('OTP sent successfully! (Use 123456 for testing)');
-      setStep('otp');
-      setCountdown(60);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail
+        })
+      });
+
+      if (response.ok) {
+        toast.success('OTP sent! Use 123456 for testing');
+        setStep('otp');
+      } else {
+        toast.error('Failed to send OTP');
+      }
     } catch (error) {
-      console.error('Failed to request OTP:', error);
-      toast.error('Failed to send OTP. Please try again.');
+      toast.error('Error: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-    if (!otp.trim() || otp.length !== 6) {
-      toast.error('Please enter the 6-digit OTP');
+    if (!otp) {
+      toast.error('Please enter OTP');
       return;
     }
 
     setLoading(true);
     try {
-      const verifyData = {
-        otp: otp,
-        device_name: navigator.userAgent,
-        device_type: 'web',
-        public_key: `pub_${Date.now()}`
-      };
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail,
+          otp: otp
+        })
+      });
 
-      if (authMethod === 'phone') {
-        verifyData.phone_number = phoneNumber;
+      const data = await response.json();
+      if (response.ok) {
+        if (data.is_new_user) {
+          toast.success('Verified! Please complete your profile');
+          setStep('profile');
+        } else {
+          login(data.user);
+          toast.success('Welcome back!');
+        }
       } else {
-        verifyData.email = email;
-      }
-
-      const response = await axios.post(`${API}/auth/verify-otp`, verifyData);
-      
-      if (response.data.user && !response.data.user.display_name) {
-        // New user, need to set up profile
-        setStep('profile');
-      } else {
-        // Existing user, login
-        login(response.data.user, response.data.token);
-        toast.success('Welcome back!');
-        navigate('/');
+        toast.error('Invalid OTP');
       }
     } catch (error) {
-      console.error('Failed to verify OTP:', error);
-      toast.error('Invalid OTP. Please try again.');
+      toast.error('Error: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleCompleteProfile = async () => {
-    if (!displayName.trim()) {
+    if (!profileData.name) {
       toast.error('Please enter your name');
       return;
     }
 
     setLoading(true);
     try {
-      // In a real app, you'd update the user profile here
-      // For now, we'll just navigate to the app
-      toast.success('Profile setup complete! Welcome to WA!');
-      navigate('/');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail,
+          otp: otp,
+          ...profileData
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        login(data.user);
+        toast.success('Profile created! Welcome to WA');
+      } else {
+        toast.error('Failed to create profile');
+      }
     } catch (error) {
-      console.error('Failed to complete profile:', error);
-      toast.error('Failed to setup profile');
+      toast.error('Error: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -123,274 +124,227 @@ const AuthScreen = () => {
   // Welcome Screen
   if (step === 'welcome') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E5DDD5] to-[#F0F2F5] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="mb-12">
-            <WALogo size={120} showText={true} />
-          </div>
-
-          {/* Welcome Card */}
-          <Card className="border-0 shadow-2xl">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-normal">Welcome to WA</CardTitle>
-              <CardDescription className="text-base mt-2">
-                Secure messaging for everyone
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-sm text-gray-600 text-center space-y-2 py-4">
-                <p>Read our Privacy Policy. Tap "Agree and continue" to accept the Terms of Service.</p>
-              </div>
-              
-              <Button
-                onClick={() => setStep('phone')}
-                className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white h-12 text-base"
-              >
-                Agree and Continue
-              </Button>
-
-              <div className="text-xs text-center text-gray-500 pt-4">
-                <p>from</p>
-                <p className="font-semibold text-gray-700 mt-1">EMERGENT</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#00A884] to-[#128C7E] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardHeader className="text-center space-y-4 pb-8">
+            <div className="flex justify-center">
+              <WALogo size="xl" showText={false} />
+            </div>
+            <CardTitle className="text-3xl font-bold text-[#111B21]">Welcome to WA</CardTitle>
+            <CardDescription className="text-base">
+              Connect with friends and family instantly
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white h-12 text-lg"
+              onClick={() => setStep('input')}
+            >
+              Get Started
+            </Button>
+            <p className="text-xs text-center text-gray-500 mt-4">
+              By continuing, you agree to our Terms of Service and Privacy Policy
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Phone/Email Input Screen
-  if (step === 'phone') {
+  // Phone/Email Input
+  if (step === 'input') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E5DDD5] to-[#F0F2F5] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-0 shadow-2xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-normal">Verify your number</CardTitle>
-              <CardDescription className="mt-4">
-                WA will send an SMS message (carrier charges may apply) to verify your phone number. Or use email instead.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Auth Method Toggle */}
-              <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-                <button
-                  onClick={() => setAuthMethod('phone')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md transition-colors ${
-                    authMethod === 'phone' ? 'bg-white shadow-sm' : 'text-gray-600'
-                  }`}
-                >
-                  <Phone className="w-4 h-4" />
-                  <span className="text-sm font-medium">Phone</span>
-                </button>
-                <button
-                  onClick={() => setAuthMethod('email')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md transition-colors ${
-                    authMethod === 'email' ? 'bg-white shadow-sm' : 'text-gray-600'
-                  }`}
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="text-sm font-medium">Email</span>
-                </button>
-              </div>
-
-              {/* Input */}
-              {authMethod === 'phone' ? (
-                <div>
+      <div className="min-h-screen bg-gradient-to-br from-[#00A884] to-[#128C7E] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <WALogo size="lg" showText={false} />
+            </div>
+            <CardTitle className="text-2xl font-bold">Sign in to WA</CardTitle>
+            <CardDescription>
+              Enter your phone number or email
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="phone" className="w-full" onValueChange={setAuthType}>
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="phone">Phone</TabsTrigger>
+                <TabsTrigger value="email">Email</TabsTrigger>
+              </Tabs>
+              
+              <TabsContent value="phone" className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
                   <div className="flex gap-2">
                     <Input
+                      id="phone"
                       type="tel"
                       placeholder="+1 234 567 8900"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 h-12 text-base"
-                      disabled={loading}
+                      value={phoneOrEmail}
+                      onChange={(e) => setPhoneOrEmail(e.target.value)}
+                      className="h-12"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    You must verify that this phone number belongs to you.
-                  </p>
                 </div>
-              ) : (
-                <div>
+              </TabsContent>
+              
+              <TabsContent value="email" className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
                   <Input
+                    id="email"
                     type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 text-base"
-                    disabled={loading}
+                    placeholder="you@example.com"
+                    value={phoneOrEmail}
+                    onChange={(e) => setPhoneOrEmail(e.target.value)}
+                    className="h-12"
                   />
-                  <p className="text-xs text-gray-500 mt-2">
-                    We'll send a verification code to this email address.
-                  </p>
                 </div>
-              )}
+              </TabsContent>
+            </Tabs>
 
-              <Button
-                onClick={handleRequestOTP}
-                disabled={loading || (authMethod === 'phone' ? !phoneNumber.trim() : !email.trim())}
-                className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white h-12 text-base"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  'Next'
-                )}
-              </Button>
-
-              <Button
-                variant="ghost"
-                onClick={() => setStep('welcome')}
-                className="w-full"
-                disabled={loading}
-              >
-                Back
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            <Button 
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white h-12 mt-6"
+              onClick={handleRequestOTP}
+              disabled={loading}
+            >
+              {loading ? 'Sending...' : 'Send OTP'}
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              className="w-full mt-2"
+              onClick={() => setStep('welcome')}
+            >
+              Back
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // OTP Verification Screen
+  // OTP Verification
   if (step === 'otp') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E5DDD5] to-[#F0F2F5] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-0 shadow-2xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-normal">Enter verification code</CardTitle>
-              <CardDescription className="mt-4">
-                {authMethod === 'phone' 
-                  ? `We sent a code to ${phoneNumber}` 
-                  : `We sent a code to ${email}`
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* OTP Input */}
-              <div>
-                <Input
-                  type="text"
-                  placeholder="123456"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="h-14 text-center text-2xl tracking-[0.5em] font-mono"
-                  maxLength={6}
-                  disabled={loading}
-                  autoFocus
-                />
-                <p className="text-xs text-center text-gray-500 mt-3">
-                  {countdown > 0 ? (
-                    `Resend code in ${countdown}s`
-                  ) : (
-                    <button 
-                      onClick={handleRequestOTP}
-                      className="text-[#00A884] font-medium hover:underline"
-                      disabled={loading}
-                    >
-                      Resend code
-                    </button>
-                  )}
-                </p>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#00A884] to-[#128C7E] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <WALogo size="lg" showText={false} />
+            </div>
+            <CardTitle className="text-2xl font-bold">Verify OTP</CardTitle>
+            <CardDescription>
+              Enter the 6-digit code sent to {phoneOrEmail}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="otp">OTP Code</Label>
+              <Input
+                id="otp"
+                type="text"
+                maxLength={6}
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="h-12 text-center text-2xl tracking-widest"
+              />
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+              <Info className="text-blue-500 flex-shrink-0 mt-0.5" size={18} />
+              <p className="text-sm text-blue-700">For testing, use OTP: <strong>123456</strong></p>
+            </div>
 
-              <Button
-                onClick={handleVerifyOTP}
-                disabled={loading || otp.length !== 6}
-                className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white h-12 text-base"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify'
-                )}
-              </Button>
-
-              <Button
-                variant="ghost"
-                onClick={() => setStep('phone')}
-                className="w-full"
-                disabled={loading}
-              >
-                Change number
-              </Button>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs text-blue-900 text-center">
-                  🔐 For testing, use OTP: <span className="font-mono font-bold">123456</span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            <Button 
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white h-12"
+              onClick={handleVerifyOTP}
+              disabled={loading}
+            >
+              {loading ? 'Verifying...' : 'Verify & Continue'}
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              className="w-full"
+              onClick={handleRequestOTP}
+              disabled={loading}
+            >
+              Resend OTP
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Profile Setup Screen (for new users)
+  // Profile Setup
   if (step === 'profile') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E5DDD5] to-[#F0F2F5] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-0 shadow-2xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-normal">Profile info</CardTitle>
-              <CardDescription className="mt-4">
-                Please provide your name and an optional profile photo
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Avatar Placeholder */}
-              <div className="flex justify-center">
-                <div className="w-24 h-24 rounded-full bg-[#DFE5E7] flex items-center justify-center cursor-pointer hover:bg-[#D1D7DB] transition-colors">
-                  <User className="w-12 h-12 text-gray-400" />
-                </div>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#00A884] to-[#128C7E] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <WALogo size="lg" showText={false} />
+            </div>
+            <CardTitle className="text-2xl font-bold">Complete Your Profile</CardTitle>
+            <CardDescription>
+              Let others know who you are
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex justify-center">
+              <Avatar className="w-24 h-24">
+                <AvatarImage src={profileData.avatar} />
+                <AvatarFallback className="bg-[#25D366] text-white text-3xl">
+                  <User size={48} />
+                </AvatarFallback>
+              </Avatar>
+            </div>
 
-              {/* Name Input */}
-              <div>
-                <Input
-                  type="text"
-                  placeholder="Type your name here"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="h-12 text-base"
-                  disabled={loading}
-                  autoFocus
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  This name will be visible to your WA contacts
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                id="name"
+                placeholder="Your name"
+                value={profileData.name}
+                onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                className="h-11"
+              />
+            </div>
 
-              <Button
-                onClick={handleCompleteProfile}
-                disabled={loading || !displayName.trim()}
-                className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white h-12 text-base"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Setting up...
-                  </>
-                ) : (
-                  'Next'
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="username">Username (optional)</Label>
+              <Input
+                id="username"
+                placeholder="@username"
+                value={profileData.username}
+                onChange={(e) => setProfileData({...profileData, username: e.target.value})}
+                className="h-11"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="about">About</Label>
+              <Input
+                id="about"
+                placeholder="Hey there! I am using WA"
+                value={profileData.about}
+                onChange={(e) => setProfileData({...profileData, about: e.target.value})}
+                className="h-11"
+              />
+            </div>
+
+            <Button 
+              className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white h-12"
+              onClick={handleCompleteProfile}
+              disabled={loading}
+            >
+              {loading ? 'Creating...' : 'Complete Setup'}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
