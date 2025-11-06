@@ -760,9 +760,6 @@ async def call_signal(sid, data):
         target_sid = active_connections[target_user_id]
         await sio.emit('call_signal', signal_data, room=target_sid)
 
-# Wrap Socket.IO with ASGI
-socket_app = socketio.ASGIApp(sio, app)
-
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -783,5 +780,6 @@ logger = logging.getLogger(__name__)
 async def shutdown_db_client():
     client.close()
 
-# Export socket_app as the main app
+# Wrap Socket.IO with ASGI - this becomes the main app
+socket_app = socketio.ASGIApp(sio, app)
 app = socket_app
