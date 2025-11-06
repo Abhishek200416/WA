@@ -104,6 +104,14 @@ const ChatHeader = ({ chat, typing = false, online = false }) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Call Modal */}
+      <CallModal
+        isOpen={showCallModal}
+        onClose={() => setShowCallModal(false)}
+        callType={callType}
+        contact={chat.type === 'direct' ? chat.otherUser : { display_name: chat.name, avatar_url: chat.avatar_url }}
+      />
     </div>
   );
 };
