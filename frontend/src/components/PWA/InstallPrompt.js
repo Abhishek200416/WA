@@ -72,23 +72,38 @@ const InstallPrompt = () => {
     <div className="fixed top-0 left-0 right-0 z-50 bg-[#00A884] text-white shadow-lg">
       <div className="flex items-center justify-between p-3 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 flex-1">
-          <Download className="h-5 w-5" />
+          {isIOS ? <Share className="h-5 w-5" /> : <Download className="h-5 w-5" />}
           <div className="flex-1">
             <p className="text-sm font-medium">Install WA</p>
-            <p className="text-xs opacity-90">Add to your home screen for a better experience</p>
+            <p className="text-xs opacity-90">
+              {isIOS 
+                ? 'Tap Share → Add to Home Screen' 
+                : 'Add to your home screen for a better experience'}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            onClick={handleInstall}
-            className="bg-white text-[#00A884] hover:bg-gray-100 h-8 text-xs"
-          >
-            Install
-          </Button>
+          {!isIOS && (
+            <Button
+              size="sm"
+              onClick={handleInstall}
+              className="bg-white text-[#00A884] hover:bg-gray-100 h-8 text-xs font-medium"
+            >
+              Install
+            </Button>
+          )}
+          {isIOS && (
+            <Button
+              size="sm"
+              onClick={handleInstall}
+              className="bg-white text-[#00A884] hover:bg-gray-100 h-8 text-xs font-medium"
+            >
+              How to Install
+            </Button>
+          )}
           <button
             onClick={handleDismiss}
-            className="p-1 hover:bg-white/10 rounded"
+            className="p-1 hover:bg-white/10 rounded transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
