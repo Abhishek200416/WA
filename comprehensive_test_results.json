@@ -1,0 +1,209 @@
+{
+  "total_tests": 11,
+  "passed_tests": 11,
+  "failed_tests": 0,
+  "success_rate": 100.0,
+  "test_results": [
+    {
+      "test_name": "Auth - Alice Created",
+      "status": "PASS",
+      "details": "User ID: c7356b77-73f4-4069-bc75-bd97fbf71374",
+      "error": "",
+      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+1111111111\", \"otp\": \"123456\", \"device_name\": \"Alice's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_alice\"}'",
+      "timestamp": "2025-11-06T09:29:20.092040"
+    },
+    {
+      "test_name": "Auth - Bob Created",
+      "status": "PASS",
+      "details": "User ID: aee99696-acd9-4329-bf0a-e00f5c3e8c8e",
+      "error": "",
+      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\", \"otp\": \"123456\", \"device_name\": \"Bob's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_bob\"}'",
+      "timestamp": "2025-11-06T09:29:20.222941"
+    },
+    {
+      "test_name": "Auth - Carol Created",
+      "status": "PASS",
+      "details": "User ID: 645c2a8a-8053-4639-a58d-870b1b24cd3d",
+      "error": "",
+      "curl_command": "curl -X POST https://quickchat-380.preview.emergentagent.com/api/auth/verify-otp -H 'Content-Type: application/json' -d '{\"phone_number\": \"+3333333333\", \"otp\": \"123456\", \"device_name\": \"Carol's Device\", \"device_type\": \"web\", \"public_key\": \"test_public_key_carol\"}'",
+      "timestamp": "2025-11-06T09:29:20.339667"
+    },
+    {
+      "test_name": "Contacts - Alice adds Bob",
+      "status": "PASS",
+      "details": "Alice has 1 contacts",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/contacts?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"phone_number\": \"+2222222222\"}'",
+      "timestamp": "2025-11-06T09:29:20.545081"
+    },
+    {
+      "test_name": "Chat - Direct Creation",
+      "status": "PASS",
+      "details": "Chat ID: 097d97ed-198f-4438-84dd-296119e164a4",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/chats?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"type\": \"direct\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\"]}'",
+      "timestamp": "2025-11-06T09:29:20.613469"
+    },
+    {
+      "test_name": "Messaging - Bidirectional",
+      "status": "PASS",
+      "details": "Retrieved 2 messages",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/messages?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"chat_id\": \"097d97ed-198f-4438-84dd-296119e164a4\", \"content\": \"Hello Bob! This is Alice testing the messaging system.\", \"message_type\": \"text\"}'",
+      "timestamp": "2025-11-06T09:29:20.782653"
+    },
+    {
+      "test_name": "Message Ops - Edit/React/Delete",
+      "status": "PASS",
+      "details": "All operations successful",
+      "error": "",
+      "curl_command": "curl -X PATCH 'https://quickchat-380.preview.emergentagent.com/api/messages/3b4ab1ca-fd5e-49da-93b5-72c9b5d2284a?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"content\": \"Hello Bob! This is Alice testing the EDITED messaging system.\"}'",
+      "timestamp": "2025-11-06T09:29:20.962216"
+    },
+    {
+      "test_name": "Group Chat - Full Test",
+      "status": "PASS",
+      "details": "Group created with invite: wa://cdcb4029",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/chats?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -H 'Content-Type: application/json' -d '{\"type\": \"group\", \"name\": \"WA Test Group Chat\", \"participants\": [\"aee99696-acd9-4329-bf0a-e00f5c3e8c8e\", \"645c2a8a-8053-4639-a58d-870b1b24cd3d\"]}'",
+      "timestamp": "2025-11-06T09:29:21.079554"
+    },
+    {
+      "test_name": "File Upload - With Message",
+      "status": "PASS",
+      "details": "File uploaded and sent: 840e861d-9fac-4d15-9676-e6db96a9e5ab",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/upload?user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -F 'file=@test_image.jpg'",
+      "timestamp": "2025-11-06T09:29:21.354856"
+    },
+    {
+      "test_name": "Status - Create & Fetch",
+      "status": "PASS",
+      "details": "Status created, Bob sees 1 statuses",
+      "error": "",
+      "curl_command": "curl -X POST 'https://quickchat-380.preview.emergentagent.com/api/status' -G -d 'user_id=c7356b77-73f4-4069-bc75-bd97fbf71374' -d 'content_type=text' -d 'content=Alice's test status - having a great day testing WA!'",
+      "timestamp": "2025-11-06T09:29:21.543293"
+    },
+    {
+      "test_name": "Socket.IO - Connectivity",
+      "status": "PASS",
+      "details": "Socket.IO endpoint accessible",
+      "error": "",
+      "curl_command": "curl -X GET 'https://quickchat-380.preview.emergentagent.com/socket.io/'",
+      "timestamp": "2025-11-06T09:29:21.606425"
+    }
+  ],
+  "created_users": {
+    "Alice": {
+      "user_data": {
+        "id": "c7356b77-73f4-4069-bc75-bd97fbf71374",
+        "phone_number": "+1111111111",
+        "email": null,
+        "username": "user_1da1efa9",
+        "display_name": "+1111111111",
+        "avatar_url": null,
+        "about": "",
+        "public_key": null,
+        "identity_key": null,
+        "created_at": "2025-11-06T09:29:20.081217+00:00",
+        "last_seen": "2025-11-06T09:29:20.081221+00:00",
+        "privacy_settings": {
+          "profile_photo": "everyone",
+          "about": "everyone",
+          "last_seen": "everyone",
+          "status": "contacts",
+          "read_receipts": true,
+          "online_status": true
+        }
+      },
+      "device_data": {
+        "id": "ab3376af-7203-4e4d-adf6-2ebc3832c3ce",
+        "user_id": "c7356b77-73f4-4069-bc75-bd97fbf71374",
+        "device_name": "Alice's Device",
+        "device_type": "web",
+        "public_key": "test_public_key_alice",
+        "created_at": "2025-11-06T09:29:20.082712+00:00",
+        "last_active": "2025-11-06T09:29:20.082716+00:00",
+        "is_active": true
+      },
+      "token": "c7356b77-73f4-4069-bc75-bd97fbf71374",
+      "phone": "+1111111111"
+    },
+    "Bob": {
+      "user_data": {
+        "id": "aee99696-acd9-4329-bf0a-e00f5c3e8c8e",
+        "phone_number": "+2222222222",
+        "email": null,
+        "username": "user_60e13019",
+        "display_name": "+2222222222",
+        "avatar_url": null,
+        "about": "",
+        "public_key": null,
+        "identity_key": null,
+        "created_at": "2025-11-06T09:29:20.213398+00:00",
+        "last_seen": "2025-11-06T09:29:20.213402+00:00",
+        "privacy_settings": {
+          "profile_photo": "everyone",
+          "about": "everyone",
+          "last_seen": "everyone",
+          "status": "contacts",
+          "read_receipts": true,
+          "online_status": true
+        }
+      },
+      "device_data": {
+        "id": "4b3f66e1-4194-412b-a969-d4dde16f7f85",
+        "user_id": "aee99696-acd9-4329-bf0a-e00f5c3e8c8e",
+        "device_name": "Bob's Device",
+        "device_type": "web",
+        "public_key": "test_public_key_bob",
+        "created_at": "2025-11-06T09:29:20.214582+00:00",
+        "last_active": "2025-11-06T09:29:20.214587+00:00",
+        "is_active": true
+      },
+      "token": "aee99696-acd9-4329-bf0a-e00f5c3e8c8e",
+      "phone": "+2222222222"
+    },
+    "Carol": {
+      "user_data": {
+        "id": "645c2a8a-8053-4639-a58d-870b1b24cd3d",
+        "phone_number": "+3333333333",
+        "email": null,
+        "username": "user_d6cfc2a5",
+        "display_name": "+3333333333",
+        "avatar_url": null,
+        "about": "",
+        "public_key": null,
+        "identity_key": null,
+        "created_at": "2025-11-06T09:29:20.327209+00:00",
+        "last_seen": "2025-11-06T09:29:20.327215+00:00",
+        "privacy_settings": {
+          "profile_photo": "everyone",
+          "about": "everyone",
+          "last_seen": "everyone",
+          "status": "contacts",
+          "read_receipts": true,
+          "online_status": true
+        }
+      },
+      "device_data": {
+        "id": "ae8d073e-3fc1-4a10-ad52-03c56aa114b5",
+        "user_id": "645c2a8a-8053-4639-a58d-870b1b24cd3d",
+        "device_name": "Carol's Device",
+        "device_type": "web",
+        "public_key": "test_public_key_carol",
+        "created_at": "2025-11-06T09:29:20.329337+00:00",
+        "last_active": "2025-11-06T09:29:20.329347+00:00",
+        "is_active": true
+      },
+      "token": "645c2a8a-8053-4639-a58d-870b1b24cd3d",
+      "phone": "+3333333333"
+    }
+  },
+  "test_chat_id": "097d97ed-198f-4438-84dd-296119e164a4",
+  "test_group_id": "163f7d26-9818-4c07-850a-2bc53d18cf9b",
+  "message_ids": [
+    "3b4ab1ca-fd5e-49da-93b5-72c9b5d2284a",
+    "d234ff8f-36b0-4fca-be31-9d934f15269a"
+  ]
+}
