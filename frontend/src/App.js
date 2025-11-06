@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import '@/App.css';
+import '@/styles/whatsapp-theme.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DeviceProvider, useDevice } from './context/DeviceContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -10,37 +11,107 @@ import ChatScreen from './pages/ChatScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import StatusScreen from './pages/StatusScreen';
 import CallScreen from './pages/CallScreen';
+import DesktopLayout from './components/Layout/DesktopLayout';
+import MobileLayout from './components/Layout/MobileLayout';
+import IOSNavBar from './components/Navigation/IOSNavBar';
+import AndroidTopBar from './components/Navigation/AndroidTopBar';
 import { Toaster } from '@/components/ui/sonner';
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const { type, platform } = useDevice();
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[#00A884]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+          <p className="text-white text-lg">WhatsApp</p>
+        </div>
       </div>
     );
   }
 
+  // Desktop layout
+  if (type === 'desktop') {
+    return (
+      <Routes>
+        <Route path="/auth" element={!user ? <AuthScreen /> : <Navigate to="/" />} />
+        <Route
+          path="/*"
+          element={
+            user ? (
+              <DesktopLayout>
+                <ChatListScreen />
+              </DesktopLayout>
+            ) : (
+              <Navigate to="/auth" />
+            )
+          }
+        >
+          <Route path="chat/:chatId" element={<ChatScreen />} />
+        </Route>
+      </Routes>
+    );
+  }
+
+  // Mobile layout (iOS/Android)
   return (
     <Routes>
       <Route path="/auth" element={!user ? <AuthScreen /> : <Navigate to="/" />} />
       <Route
         path="/"
-        element={user ? <ChatListScreen /> : <Navigate to="/auth" />}
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              {platform === 'android' && <AndroidTopBar />}
+              <ChatListScreen />
+              {platform === 'ios' && <IOSNavBar />}
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
       />
       <Route
         path="/chat/:chatId"
-        element={user ? <ChatScreen /> : <Navigate to="/auth" />}
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              <ChatScreen />
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
       />
       <Route
         path="/status"
-        element={user ? <StatusScreen /> : <Navigate to="/auth" />}
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              {platform === 'android' && <AndroidTopBar title="Status" />}
+              <StatusScreen />
+              {platform === 'ios' && <IOSNavBar />}
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
       />
       <Route
         path="/settings"
-        element={user ? <SettingsScreen /> : <Navigate to="/auth" />}
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              {platform === 'android' && <AndroidTopBar title="Settings" />}
+              <SettingsScreen />
+              {platform === 'ios' && <IOSNavBar />}
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
       />
       <Route
         path="/call/:callId"
