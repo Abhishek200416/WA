@@ -33,26 +33,35 @@ const DesktopSidebar = () => {
     const active = isActive(item.path);
     
     return (
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider delayDuration={200}>
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               onClick={() => navigate(item.path)}
-              className={`w-full h-[72px] flex items-center justify-center transition-colors relative ${
+              className={`w-full h-[72px] flex items-center justify-center transition-all duration-200 relative group ${
                 active ? 'bg-[#2A3942]' : 'hover:bg-[#2A3942]'
               }`}
             >
-              <Icon
-                size={24}
-                className={active ? 'text-[#00A884]' : 'text-[#AEBAC1]'}
-              />
+              <div className={`p-2 rounded-lg transition-all ${
+                active ? 'bg-[#00A884]/10' : 'group-hover:bg-[#00A884]/5'
+              }`}>
+                <Icon
+                  size={26}
+                  className={active ? 'text-[#00A884]' : 'text-[#AEBAC1]'}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+              </div>
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00A884] rounded-r-full"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 bg-[#00A884] rounded-r-full shadow-lg shadow-[#00A884]/50"></div>
               )}
             </button>
           </TooltipTrigger>
-          <TooltipContent side="right" className="bg-[#111B21] border-[#2A3942] text-white">
-            <p>{item.label}</p>
+          <TooltipContent 
+            side="right" 
+            className="bg-[#111B21] border-[#2A3942] text-white shadow-xl"
+            sideOffset={8}
+          >
+            <p className="text-sm font-medium">{item.label}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
