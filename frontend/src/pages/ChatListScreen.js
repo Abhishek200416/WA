@@ -10,8 +10,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { MessageCircle, Search, Plus, Settings, MoreVertical, Users, Edit, Archive } from 'lucide-react';
+import { MessageCircle, Search, Plus, Settings, MoreVertical, Users, Edit, Archive, LogOut } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ChatListItem from '@/components/Chat/ChatListItem';
+import WALogo from '@/components/Branding/WALogo';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -23,7 +31,7 @@ const ChatListScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { socket } = useSocket();
   const { type, platform } = useDevice();
   const navigate = useNavigate();
@@ -62,7 +70,6 @@ const ChatListScreen = () => {
       const response = await axios.get(`${API}/chats?user_id=${user.id}`);
       const chatsData = response.data;
       
-      // Enrich chats with other user data for direct chats
       const enrichedChats = await Promise.all(chatsData.map(async (chat) => {
         if (chat.type === 'direct') {
           const otherUserId = chat.participants.find(p => p !== user.id);
@@ -75,6 +82,7 @@ const ChatListScreen = () => {
             }
           }
         }
+        chat.current_user_id = user.id;
         return chat;
       }));
       
@@ -98,168 +106,168 @@ const ChatListScreen = () => {
     try {
       const response = await axios.post(`${API}/chats?user_id=${user.id}`, {
         type: 'direct',
-        participants: [contactUserId]
+        participants: [user.id, contactUserId]
       });
+      
+      const newChat = response.data;
+      toast.success('Chat created!');
       setShowNewChat(false);
-      navigate(`/chat/${response.data.id}`);
+      navigate(`/chat/${newChat.id}`);
     } catch (error) {
-      toast.error('Failed to create chat');
-      console.error(error);
+      if (error.response?.status === 400) {
+        toast.error('Chat already exists');
+      } else {
+        toast.error('Failed to create chat');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const createGroup = () => {
-    // TODO: Implement group creation
-    toast.info('Group creation coming soon!');
-  };
-
   const filteredChats = chats.filter(chat => {
     if (!searchQuery) return true;
-    
-    const name = chat.type === 'direct'
-      ? chat.otherUser?.display_name || ''
-      : chat.name || '';
-    
+    const name = chat.type === 'group' ? chat.name : (chat.otherUser?.name || chat.otherUser?.username || '');
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Header - Desktop only, mobile uses platform nav */}
-      {type === 'desktop' && (
-        <div className="wa-header bg-[#F0F2F5] border-b border-gray-200 h-[60px] px-4 flex items-center justify-between">
-          <Avatar className="w-10 h-10 cursor-pointer" onClick={() => navigate('/settings')}>
-            <AvatarImage src={user?.avatar_url} />
-            <AvatarFallback className="bg-[#DFE5E7] text-gray-600">
-              {user?.display_name?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
+  // Desktop Header
+  const DesktopHeader = () => (
+    <div className="h-[60px] bg-[#202C33] border-b border-[#2A3942] px-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Avatar className="w-10 h-10 cursor-pointer" onClick={() => navigate('/settings')}>
+          <AvatarImage src={user?.avatar} />
+          <AvatarFallback className="bg-[#54656F] text-white">
+            {user?.name?.charAt(0) || 'U'}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+      
+      <div className="flex items-center gap-2">
+        <button className="p-2 hover:bg-[#2A3942] rounded-full transition-colors">
+          <Users size={20} className="text-[#AEBAC1]" />
+        </button>
+        <button className="p-2 hover:bg-[#2A3942] rounded-full transition-colors">
+          <MessageCircle size={20} className="text-[#AEBAC1]" />
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-2 hover:bg-[#2A3942] rounded-full transition-colors">
+              <MoreVertical size={20} className="text-[#AEBAC1]" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => navigate('/groups/new')}>
+              New group
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/status')}>
+              Status
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              <Settings size={16} className="mr-2" /> Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout} className="text-red-500">
+              <LogOut size={16} className="mr-2" /> Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
 
-          <div className="flex items-center gap-2">
-            <button 
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              onClick={() => {/* TODO: Communities */}}
-            >
-              <Users className="w-5 h-5 text-gray-600" />
-            </button>
-            <button 
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              onClick={() => navigate('/status')}
-            >
-              <MessageCircle className="w-5 h-5 text-gray-600" />
-            </button>
-            <Dialog open={showNewChat} onOpenChange={setShowNewChat}>
-              <DialogTrigger asChild>
-                <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                  <Edit className="w-5 h-5 text-gray-600" />
-                </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>New Chat</DialogTitle>
-                </DialogHeader>
-                <ScrollArea className="max-h-[400px]">
-                  {contacts.map((contact) => (
-                    <div
-                      key={contact.contact.id}
-                      className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer"
-                      onClick={() => createDirectChat(contact.user.id)}
-                    >
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={contact.user.avatar_url} />
-                        <AvatarFallback className="bg-[#DFE5E7]">
-                          {contact.user.display_name?.charAt(0) || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{contact.user.display_name}</p>
-                        <p className="text-sm text-gray-500">{contact.user.about || 'Hey there! I am using WhatsApp.'}</p>
-                      </div>
-                    </div>
-                  ))}
-                </ScrollArea>
-                <Button onClick={createGroup} variant="outline" className="w-full">
-                  <Users className="w-4 h-4 mr-2" />
-                  New Group
-                </Button>
-              </DialogContent>
-            </Dialog>
-            <button 
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              onClick={() => navigate('/settings')}
-            >
-              <MoreVertical className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-      )}
+  return (
+    <div className="flex flex-col h-full bg-[#111B21]">
+      {/* Header */}
+      {type === 'desktop' && <DesktopHeader />}
 
       {/* Search Bar */}
-      <div className="px-3 py-2 bg-white border-b border-gray-100">
+      <div className="px-3 py-2 bg-[#111B21]">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8696A0]" size={18} />
           <Input
             type="text"
             placeholder="Search or start new chat"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-[#F0F2F5] border-0 rounded-lg h-9"
+            className="pl-10 bg-[#202C33] border-none text-white placeholder:text-[#8696A0] h-9 rounded-lg"
           />
         </div>
-      </div>
-
-      {/* Filter Tabs (Optional) */}
-      <div className="flex gap-2 px-3 py-2 border-b border-gray-100 overflow-x-auto">
-        <button className="px-4 py-1.5 rounded-full bg-[#E7F8EE] text-[#027A48] text-sm font-medium whitespace-nowrap">
-          All
-        </button>
-        <button className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-600 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-          Unread
-        </button>
-        <button className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-600 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-          Groups
-        </button>
       </div>
 
       {/* Chat List */}
       <ScrollArea className="flex-1">
         {filteredChats.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full py-20 px-4 text-center">
-            <MessageCircle className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-700 mb-2">No chats yet</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Start a conversation by clicking the new chat button
-            </p>
-            <Button onClick={() => setShowNewChat(true)} className="bg-[#00A884] hover:bg-[#017561]">
-              <Plus className="w-4 h-4 mr-2" />
-              Start New Chat
+          <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+            <MessageCircle size={64} className="text-[#54656F] mb-4" />
+            <h3 className="text-[#E9EDEF] text-lg font-medium mb-2">No chats yet</h3>
+            <p className="text-[#8696A0] text-sm mb-4">Start a conversation with your contacts</p>
+            <Button 
+              onClick={() => setShowNewChat(true)}
+              className="bg-[#25D366] hover:bg-[#1FAF54] text-white"
+            >
+              <Plus size={18} className="mr-2" />
+              New Chat
             </Button>
           </div>
         ) : (
-          <div>
-            {filteredChats.map((chat) => (
-              <ChatListItem
-                key={chat.id}
-                chat={chat}
-                user={user}
-                onClick={() => navigate(`/chat/${chat.id}`)}
-              />
-            ))}
-          </div>
+          filteredChats.map((chat) => (
+            <ChatListItem
+              key={chat.id}
+              chat={chat}
+              onClick={() => navigate(`/chat/${chat.id}`)}
+            />
+          ))
         )}
       </ScrollArea>
 
-      {/* FAB for Android */}
+      {/* FAB (Android) */}
       {platform === 'android' && (
         <button
           onClick={() => setShowNewChat(true)}
-          className="wa-fab fixed bottom-20 right-4 w-14 h-14 bg-[#00A884] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#017561] transition-colors z-40"
+          className="wa-fab fixed bottom-20 right-6 w-14 h-14 bg-[#25D366] hover:bg-[#1FAF54] rounded-full flex items-center justify-center shadow-lg transition-all"
         >
-          <Edit className="w-6 h-6" />
+          <MessageCircle size={24} className="text-white" />
         </button>
       )}
+
+      {/* New Chat Dialog */}
+      <Dialog open={showNewChat} onOpenChange={setShowNewChat}>
+        <DialogContent className="bg-[#202C33] text-white border-[#2A3942]">
+          <DialogHeader>
+            <DialogTitle>New Chat</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Input
+              placeholder="Search contacts"
+              className="bg-[#2A3942] border-none text-white"
+            />
+            <ScrollArea className="h-64">
+              {contacts.length === 0 ? (
+                <p className="text-[#8696A0] text-center py-8">No contacts yet</p>
+              ) : (
+                contacts.map((contact) => (
+                  <div
+                    key={contact.user_id}
+                    onClick={() => createDirectChat(contact.user_id)}
+                    className="flex items-center gap-3 p-3 hover:bg-[#2A3942] cursor-pointer rounded-lg transition-colors"
+                  >
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={contact.user?.avatar} />
+                      <AvatarFallback className="bg-[#54656F] text-white">
+                        {contact.user?.name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-[#E9EDEF]">{contact.user?.name || 'Unknown'}</p>
+                      <p className="text-sm text-[#8696A0]">{contact.user?.about || 'Hey there!'}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
