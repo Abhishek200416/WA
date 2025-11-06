@@ -1,24 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { X, Download } from 'lucide-react';
+import { X, Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isInStandaloneMode, setIsInStandaloneMode] = useState(false);
 
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowPrompt(true);
-    };
+    // Check if iOS
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    setIsIOS(iOS);
 
-    window.addEventListener('beforeinstallprompt', handler);
+    // Check if already installed (standalone mode)
+    const standalone = window.matchMedia('(display-mode: standalone)').matches 
+      || window.navigator.standalone 
+      || document.referrer.includes('android-app://');
+    setIsInStandaloneMode(standalone);
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    // Check if dismissed
+    const dismissed = localStorage.getItem('pwa-dismissed') === 'true';
+    
+    if (!standalone && !dismissed) {
+      if (iOS) {
+        // For iOS, show custom prompt if not in standalone mode
+        setShowPrompt(true);
+      } else {
+        // For other platforms, use standard beforeinstallprompt
+        const handler = (e) => {
+          e.preventDefault();
+          setDeferredPrompt(e);
+          setShowPrompt(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+      }
+    }
   }, []);
 
   const handleInstall = async () => {
+    if (isIOS) {
+      // For iOS, we can't programmatically trigger install, just show instructions
+      alert('To install this app on your iOS device:\n\n1. Tap the Share button (bottom of Safari)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" in the top right corner');
+      return;
+    }
+
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
@@ -30,6 +58,7 @@ const InstallPrompt = () => {
 
     setDeferredPrompt(null);
     setShowPrompt(false);
+    localStorage.setItem('pwa-dismissed', 'true');
   };
 
   const handleDismiss = () => {
@@ -37,14 +66,7 @@ const InstallPrompt = () => {
     localStorage.setItem('pwa-dismissed', 'true');
   };
 
-  // Don't show if already dismissed
-  useEffect(() => {
-    if (localStorage.getItem('pwa-dismissed') === 'true') {
-      setShowPrompt(false);
-    }
-  }, []);
-
-  if (!showPrompt) return null;
+  if (!showPrompt || isInStandaloneMode) return null;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-[#00A884] text-white shadow-lg">
