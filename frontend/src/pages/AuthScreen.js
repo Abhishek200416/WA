@@ -22,7 +22,7 @@ const AuthScreen = () => {
     avatar: ''
   });
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { verifyOTP, updateUser } = useAuth();
 
   const handleRequestOTP = async () => {
     if (!phoneOrEmail) {
