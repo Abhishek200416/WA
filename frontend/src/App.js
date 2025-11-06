@@ -17,6 +17,7 @@ import CallsScreen from './pages/CallsScreen';
 import DesktopLayout from './components/Layout/DesktopLayout';
 import MobileLayout from './components/Layout/MobileLayout';
 import IOSBottomNav from './components/Navigation/IOSBottomNav';
+import IOSHeader from './components/Navigation/IOSHeader';
 import AndroidBottomNav from './components/Navigation/AndroidBottomNav';
 import AndroidHeader from './components/Navigation/AndroidHeader';
 import DesktopSidebar from './components/Navigation/DesktopSidebar';
