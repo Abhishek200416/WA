@@ -21,8 +21,15 @@ const IOSBottomNav = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#F7F7F7]/95 backdrop-blur-xl border-t border-gray-200 safe-area-inset-bottom z-50" style={{ backdropFilter: 'blur(20px)' }}>
-      <div className="flex items-center justify-around h-[56px] px-2">
+    <div 
+      className="fixed bottom-0 left-0 right-0 bg-[#F9F9F9]/95 border-t border-gray-200 safe-area-inset-bottom z-50" 
+      style={{ 
+        backdropFilter: 'blur(40px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+        boxShadow: '0 -1px 0 0 rgba(0,0,0,0.06)'
+      }}
+    >
+      <div className="flex items-center justify-around h-[58px] px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.path);
@@ -30,7 +37,7 @@ const IOSBottomNav = () => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all"
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all active:scale-95"
             >
               <Icon
                 size={24}
@@ -38,7 +45,7 @@ const IOSBottomNav = () => {
                 strokeWidth={active ? 2.5 : 2}
               />
               <span
-                className={`text-[10px] font-medium ${
+                className={`text-[10px] font-medium tracking-tight ${
                   active ? 'text-[#007AFF]' : 'text-[#8E8E93]'
                 }`}
               >
