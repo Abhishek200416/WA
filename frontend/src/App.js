@@ -133,6 +133,7 @@ function AppContent() {
           user ? (
             <div className="h-screen flex flex-col bg-[#111B21]">
               {platform === 'android' && <AndroidHeader title="Status" />}
+              {platform === 'ios' && <IOSHeader title="Updates" />}
               <div className="flex-1 overflow-hidden">
                 <StatusScreen />
               </div>
