@@ -195,20 +195,20 @@ const ChatListScreen = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#111B21] pb-[56px] md:pb-0">
+    <div className="flex flex-col h-full bg-[#111B21]">
       {/* Header - Desktop only */}
       {type === 'desktop' && <DesktopHeader />}
 
       {/* Search Bar */}
-      <div className="px-3 py-2 bg-[#111B21]">
+      <div className="px-4 py-3 bg-[#111B21]">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8696A0]" size={18} />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#8696A0]" size={19} strokeWidth={2.5} />
           <Input
             type="text"
             placeholder="Search or start new chat"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-[#202C33] border-none text-white placeholder:text-[#8696A0] h-9 rounded-lg"
+            className="pl-12 pr-4 bg-[#202C33] border-none text-white placeholder:text-[#8696A0] h-11 rounded-lg text-[15px] focus:bg-[#2A3942] transition-colors"
           />
         </div>
       </div>
