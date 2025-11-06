@@ -272,10 +272,12 @@ async def verify_otp(data: OTPVerify):
     
     user_doc = await db.users.find_one(user_query, {"_id": 0})
     
+    is_new_user = False
     if user_doc:
         user = User(**user_doc)
     else:
         # Create new user
+        is_new_user = True
         user = User(
             phone_number=data.phone_number,
             email=data.email,
