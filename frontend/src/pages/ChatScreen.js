@@ -4,14 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { useDevice } from '../context/DeviceContext';
 import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Phone, Video, MoreVertical, Smile, Paperclip, Mic, Send, Check, CheckCheck } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import EmojiPicker from 'emoji-picker-react';
+import ChatHeader from '@/components/Chat/ChatHeader';
+import MessageBubble from '@/components/Chat/MessageBubble';
+import MessageInput from '@/components/Chat/MessageInput';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -20,24 +18,24 @@ const ChatScreen = () => {
   const { chatId } = useParams();
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
   const [typing, setTyping] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const { user } = useAuth();
   const { socket } = useSocket();
-  const { platform } = useDevice();
+  const { type } = useDevice();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const fileInputRef = useRef(null);
+  const scrollAreaRef = useRef(null);
 
   useEffect(() => {
-    if (chatId) {
+    if (chatId && user) {
       fetchChat();
       fetchMessages();
     }
-  }, [chatId]);
+  }, [chatId, user]);
 
   useEffect(() => {
     if (socket && chatId) {
@@ -47,22 +45,27 @@ const ChatScreen = () => {
           scrollToBottom();
           
           // Send delivered receipt
-          socket.emit('message_delivered', {
-            message_id: message.id,
-            user_id: user.id
-          });
-          
-          // Send read receipt if chat is active
-          socket.emit('message_read', {
-            message_id: message.id,
-            user_id: user.id
-          });
+          if (message.sender_id !== user.id) {
+            socket.emit('message_delivered', {
+              message_id: message.id,
+              user_id: user.id
+            });
+            
+            // Send read receipt
+            socket.emit('message_read', {
+              message_id: message.id,
+              user_id: user.id
+            });
+          }
         }
       });
 
       socket.on('typing', (data) => {
         if (data.chat_id === chatId && data.user_id !== user.id) {
           setTyping(data.typing);
+          if (data.typing) {
+            setTimeout(() => setTyping(false), 3000);
+          }
         }
       });
 
@@ -70,6 +73,14 @@ const ChatScreen = () => {
         setMessages(prev => prev.map(msg => 
           msg.id === data.message_id ? { ...msg, status: data.status } : msg
         ));
+      });
+
+      socket.on('message_updated', (updatedMessage) => {
+        if (updatedMessage.chat_id === chatId) {
+          setMessages(prev => prev.map(msg =>
+            msg.id === updatedMessage.id ? updatedMessage : msg
+          ));
+        }
       });
 
       socket.on('message_reaction', (updatedMessage) => {
@@ -84,6 +95,7 @@ const ChatScreen = () => {
         socket.off('new_message');
         socket.off('typing');
         socket.off('message_status');
+        socket.off('message_updated');
         socket.off('message_reaction');
       };
     }
@@ -97,7 +109,25 @@ const ChatScreen = () => {
     try {
       const response = await axios.get(`${API}/chats?user_id=${user.id}`);
       const foundChat = response.data.find(c => c.id === chatId);
-      setChat(foundChat);
+      
+      if (foundChat) {
+        // Enrich with other user data for direct chats
+        if (foundChat.type === 'direct') {
+          const otherUserId = foundChat.participants.find(p => p !== user.id);
+          if (otherUserId) {
+            try {
+              const userResponse = await axios.get(`${API}/users/me?user_id=${otherUserId}`);
+              foundChat.otherUser = userResponse.data;
+            } catch (error) {
+              console.error('Failed to fetch other user:', error);
+            }
+          }
+        }
+        setChat(foundChat);
+      } else {
+        toast.error('Chat not found');
+        navigate('/');
+      }
     } catch (error) {
       console.error('Failed to fetch chat:', error);
       toast.error('Failed to load chat');
@@ -117,65 +147,52 @@ const ChatScreen = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleTyping = (text) => {
-    setNewMessage(text);
-    
-    if (socket && text.length > 0) {
-      socket.emit('typing_start', {
-        chat_id: chatId,
-        user_id: user.id
-      });
-      
-      // Clear existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      
-      // Set new timeout to stop typing
-      typingTimeoutRef.current = setTimeout(() => {
-        socket.emit('typing_stop', {
-          chat_id: chatId,
-          user_id: user.id
-        });
-      }, 1000);
-    } else if (socket && text.length === 0) {
-      socket.emit('typing_stop', {
-        chat_id: chatId,
-        user_id: user.id
-      });
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    const messageText = newMessage;
-    setNewMessage('');
-    setShowEmojiPicker(false);
-
-    // Stop typing indicator
-    if (socket) {
-      socket.emit('typing_stop', {
-        chat_id: chatId,
-        user_id: user.id
-      });
-    }
+  const handleSendMessage = async (content) => {
+    if (!content.trim()) return;
 
     try {
-      await axios.post(`${API}/messages?user_id=${user.id}`, {
+      const response = await axios.post(`${API}/messages?user_id=${user.id}`, {
         chat_id: chatId,
-        content: messageText,
+        content: content.trim(),
         message_type: 'text'
       });
+
+      // Message will be added via socket event
     } catch (error) {
       console.error('Failed to send message:', error);
       toast.error('Failed to send message');
-      setNewMessage(messageText);
+    }
+
+    // Stop typing indicator
+    if (socket && typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      socket.emit('typing_stop', { chat_id: chatId, user_id: user.id });
     }
   };
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleTyping = () => {
+    if (!socket) return;
+
+    // Send typing start
+    socket.emit('typing_start', { chat_id: chatId, user_id: user.id });
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout to stop typing
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('typing_stop', { chat_id: chatId, user_id: user.id });
+    }, 3000);
+  };
+
+  const handleAttachment = () => {
+    setShowAttachmentMenu(true);
+  };
+
+  const handleFileSelect = async (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
@@ -183,282 +200,180 @@ const ChatScreen = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const uploadResponse = await axios.post(
-        `${API}/upload?user_id=${user.id}`,
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        }
-      );
+      const uploadResponse = await axios.post(`${API}/upload?user_id=${user.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-      const { file_url, thumbnail_url, filename } = uploadResponse.data;
-
-      let messageType = 'document';
-      if (file.type.startsWith('image/')) messageType = 'image';
-      else if (file.type.startsWith('video/')) messageType = 'video';
-      else if (file.type.startsWith('audio/')) messageType = 'audio';
+      const fileData = uploadResponse.data;
+      const messageType = file.type.startsWith('image/') ? 'image' :
+                         file.type.startsWith('video/') ? 'video' :
+                         file.type.startsWith('audio/') ? 'audio' : 'document';
 
       await axios.post(`${API}/messages?user_id=${user.id}`, {
         chat_id: chatId,
-        content: filename,
+        content: '',
         message_type: messageType,
         attachments: [{
-          url: file_url,
-          thumbnail: thumbnail_url,
-          type: file.type,
-          name: filename
+          url: fileData.file_url,
+          thumbnail_url: fileData.thumbnail_url,
+          filename: file.name,
+          content_type: file.type,
+          size: file.size
         }]
       });
 
-      toast.success('File sent!');
+      toast.success('File sent successfully');
     } catch (error) {
       console.error('Failed to upload file:', error);
-      toast.error('Failed to upload file');
+      toast.error('Failed to send file');
     } finally {
       setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setShowAttachmentMenu(false);
     }
   };
 
-  const reactToMessage = async (messageId, emoji) => {
-    try {
-      await axios.post(`${API}/messages/${messageId}/react?user_id=${user.id}`, null, {
-        params: { emoji }
-      });
-    } catch (error) {
-      console.error('Failed to react:', error);
-    }
-  };
-
-  const getChatName = () => {
-    if (!chat) return '';
-    if (chat.type === 'group' || chat.type === 'channel') {
-      return chat.name;
-    }
-    // Direct chat - find other user
-    return 'Chat';
-  };
-
-  const renderMessage = (message, index) => {
-    const isSent = message.sender_id === user.id;
-    const showTime = index === 0 || 
-      (messages[index - 1] && 
-       new Date(message.created_at).getTime() - new Date(messages[index - 1].created_at).getTime() > 60000);
-
-    return (
-      <div key={message.id} className="fade-in">
-        {showTime && (
-          <div className="text-center my-4">
-            <span className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm">
-              {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-            </span>
-          </div>
-        )}
-        <div className={`flex ${isSent ? 'justify-end' : 'justify-start'} mb-2 px-4`}>
-          <div
-            className={`chat-bubble ${isSent ? 'sent' : 'received'} max-w-[75%] shadow-sm`}
-            data-testid={`message-${message.id}`}
-          >
-            {message.message_type === 'image' && message.attachments?.[0] && (
-              <img 
-                src={`${BACKEND_URL}${message.attachments[0].url}`}
-                alt="attachment"
-                className="rounded-lg mb-2 max-w-full"
-                style={{ maxHeight: '300px' }}
-              />
-            )}
-            {message.message_type === 'text' && (
-              <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-            )}
-            {message.message_type === 'document' && (
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                  <Paperclip className="w-5 h-5" />
-                </div>
-                <span className="text-sm">{message.content}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-1 justify-end mt-1">
-              <span className="text-[10px] opacity-70">
-                {new Date(message.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-              </span>
-              {isSent && (
-                <span className="checkmark" data-status={message.status}>
-                  {message.status === 'read' ? (
-                    <CheckCheck className="w-4 h-4 text-blue-500" />
-                  ) : message.status === 'delivered' ? (
-                    <CheckCheck className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <Check className="w-4 h-4 text-gray-400" />
-                  )}
-                </span>
-              )}
-            </div>
-            {message.reactions && message.reactions.length > 0 && (
-              <div className="reaction-bar">
-                {message.reactions.map((reaction, idx) => (
-                  <span key={idx} className="reaction text-xs">
-                    {reaction.emoji}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+  const handleVoiceRecord = () => {
+    toast.info('Voice recording coming soon!');
   };
 
   if (!chat) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-green-600"></div>
+      <div className="flex items-center justify-center h-full bg-[#E5DDD5]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00A884]"></div>
       </div>
     );
   }
 
+  const groupedMessages = messages.reduce((groups, message) => {
+    const date = new Date(message.created_at).toLocaleDateString();
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(message);
+    return groups;
+  }, {});
+
   return (
-    <div className="h-screen flex flex-col bg-gray-50" data-testid="chat-screen">
+    <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className={`${platform === 'ios' ? 'nav-bar' : platform === 'android' ? 'bg-green-600' : 'bg-white border-b'} px-4 py-3 flex items-center gap-3`}>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/')}
-          className={platform === 'android' ? 'text-white' : ''}
-          data-testid="back-button"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <Avatar className="w-10 h-10">
-          <AvatarImage src={chat.avatar_url} />
-          <AvatarFallback className="bg-green-200">{getChatName().charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <h2 className={`font-semibold ${platform === 'android' ? 'text-white' : 'text-gray-900'}`}>
-            {getChatName()}
-          </h2>
-          {typing && (
-            <p className={`text-sm ${platform === 'android' ? 'text-green-100' : 'text-green-600'}`}>
-              typing...
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={platform === 'android' ? 'text-white' : ''}
-            data-testid="voice-call-button"
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={platform === 'android' ? 'text-white' : ''}
-            data-testid="video-call-button"
-          >
-            <Video className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={platform === 'android' ? 'text-white' : ''}
-            data-testid="more-options-button"
-          >
-            <MoreVertical className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
+      <ChatHeader chat={chat} typing={typing} online={false} />
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 py-4" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zm20.97 0l9.315 9.314-1.414 1.414L34.828 0h2.83zM22.344 0L13.03 9.314l1.414 1.414L25.172 0h-2.83zM32 0l12.142 12.142-1.414 1.414L30 .828 17.272 13.556 15.858 12.14 28 0zm4.828 0l14.142 14.142-1.414 1.414L32 .828 17.272 15.556 15.858 14.14 30 0h6.828zM0 15l14.142-14.142 1.414 1.415L2.828 15H0zm0 6l20.142-20.142 1.414 1.415L8.828 15H0zM0 27l32.142-32.142 1.414 1.414L2.828 27H0zm0 6L38.142 0l1.415 1.414L8.828 33H0zm0 6L44.142 0l1.415 1.414L14.828 39H0zm0 6L50.142 0l1.415 1.414L20.828 45H0zm0 6L56.142 0l1.415 1.414L26.828 51H0zm0 6L60 0v6.142L32.828 57H0z' fill='%23000000' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E")`
-      }}>
-        <div className="space-y-1">
-          {messages.map((message, index) => renderMessage(message, index))}
-          {typing && (
-            <div className="flex justify-start px-4">
-              <div className="typing-indicator">
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
+      {/* Messages Area with WhatsApp Background */}
+      <div className="flex-1 wa-chat-background overflow-hidden">
+        <ScrollArea className="h-full px-4 py-2" ref={scrollAreaRef}>
+          <div className="max-w-4xl mx-auto">
+            {/* Date grouped messages */}
+            {Object.entries(groupedMessages).map(([date, msgs]) => (
+              <div key={date}>
+                {/* Date divider */}
+                <div className="flex justify-center my-4">
+                  <div className="bg-white/90 shadow-sm rounded-lg px-3 py-1.5 text-xs text-gray-600">
+                    {date === new Date().toLocaleDateString() ? 'Today' : 
+                     date === new Date(Date.now() - 86400000).toLocaleDateString() ? 'Yesterday' : date}
+                  </div>
+                </div>
+
+                {/* Messages */}
+                {msgs.map((message, index) => {
+                  const isOwn = message.sender_id === user.id;
+                  const showAvatar = !isOwn && (
+                    index === msgs.length - 1 || 
+                    msgs[index + 1]?.sender_id !== message.sender_id
+                  );
+                  
+                  return (
+                    <MessageBubble
+                      key={message.id}
+                      message={message}
+                      isOwn={isOwn}
+                      showAvatar={showAvatar}
+                    />
+                  );
+                })}
               </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+            ))}
 
-      {/* Input Area */}
-      <div className="bg-white border-t px-4 py-3">
-        {showEmojiPicker && (
-          <div className="mb-2">
-            <EmojiPicker
-              onEmojiClick={(emojiData) => {
-                setNewMessage(prev => prev + emojiData.emoji);
-              }}
-              width="100%"
-              height="350px"
-            />
+            {/* Typing Indicator */}
+            {typing && (
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
+                  <div className="wa-typing-indicator">
+                    <div className="wa-typing-dot"></div>
+                    <div className="wa-typing-dot"></div>
+                    <div className="wa-typing-dot"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
-        )}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            data-testid="emoji-button"
-          >
-            <Smile className="w-5 h-5 text-gray-600" />
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            className="hidden"
-            accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            data-testid="attach-button"
-          >
-            <Paperclip className="w-5 h-5 text-gray-600" />
-          </Button>
-          <Input
-            type="text"
-            placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => handleTyping(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-1 input-field"
-            data-testid="message-input"
-          />
-          {newMessage.trim() ? (
-            <Button
-              onClick={sendMessage}
-              className="bg-green-500 hover:bg-green-600 rounded-full w-10 h-10 p-0"
-              data-testid="send-button"
-            >
-              <Send className="w-5 h-5 text-white" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              data-testid="voice-record-button"
-            >
-              <Mic className="w-5 h-5 text-gray-600" />
-            </Button>
-          )}
-        </div>
+        </ScrollArea>
       </div>
+
+      {/* Message Input */}
+      <MessageInput
+        onSend={handleSendMessage}
+        onAttachment={handleAttachment}
+        onVoiceRecord={handleVoiceRecord}
+        disabled={uploading}
+      />
+
+      {/* Attachment Menu Dialog */}
+      <Dialog open={showAttachmentMenu} onOpenChange={setShowAttachmentMenu}>
+        <DialogContent className="sm:max-w-md">
+          <div className="grid grid-cols-3 gap-4 p-4">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#BF59CF] flex items-center justify-center text-white">
+                📄
+              </div>
+              <span className="text-sm">Document</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.accept = 'image/*';
+                  fileInputRef.current.click();
+                }
+              }}
+              className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#007BFC] flex items-center justify-center text-white">
+                📷
+              </div>
+              <span className="text-sm">Photos</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.accept = 'video/*';
+                  fileInputRef.current.click();
+                }
+              }}
+              className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#F44336] flex items-center justify-center text-white">
+                🎥
+              </div>
+              <span className="text-sm">Video</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileSelect}
+        accept="*/*"
+      />
     </div>
   );
 };
