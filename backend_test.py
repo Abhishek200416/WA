@@ -270,10 +270,12 @@ class WABackendTester:
             return False
         
         try:
-            response = requests.post(f"{self.api_url}/status?user_id={self.user_token}", json={
+            params = {
+                "user_id": self.user_token,
                 "content_type": "text",
                 "content": "Testing WA status feature!"
-            })
+            }
+            response = requests.post(f"{self.api_url}/status", params=params)
             
             if response.status_code == 200:
                 status = response.json()
