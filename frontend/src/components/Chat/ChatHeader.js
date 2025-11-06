@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDevice } from '@/context/DeviceContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Phone, Video, MoreVertical, Search } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import CallModal from '@/components/Call/CallModal';
 
 const ChatHeader = ({ chat, typing = false, online = false }) => {
   const navigate = useNavigate();
   const { type, platform } = useDevice();
+  const [showCallModal, setShowCallModal] = useState(false);
+  const [callType, setCallType] = useState('audio');
 
   const getChatDisplay = () => {
     if (chat.type === 'direct') {
