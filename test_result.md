@@ -142,6 +142,9 @@ backend:
       - working: true
         agent: "main"
         comment: "BUG FIXED: AuthScreen was calling non-existent login() function. Updated to properly store auth data in localStorage and reload page. OTP verification now working perfectly."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE OTP TESTING COMPLETE: All authentication scenarios working perfectly. Tested email (kolluriabhishek7108@gmail.com) and phone (+1234567890) authentication with OTP 123456. Response structure verified with user, device, token, and is_new_user fields. Both new user creation and existing user login working. Added missing is_new_user field to backend response. Bug fix confirmed - no login() function errors."
   
   - task: "Messaging endpoints"
     implemented: true
