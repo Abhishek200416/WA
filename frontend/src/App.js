@@ -11,6 +11,8 @@ import ChatScreen from './pages/ChatScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import StatusScreen from './pages/StatusScreen';
 import CallScreen from './pages/CallScreen';
+import GroupsScreen from './pages/GroupsScreen';
+import CallsScreen from './pages/CallsScreen';
 import DesktopLayout from './components/Layout/DesktopLayout';
 import MobileLayout from './components/Layout/MobileLayout';
 import IOSNavBar from './components/Navigation/IOSNavBar';
