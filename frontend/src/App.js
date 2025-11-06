@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import '@/App.css';
 import '@/styles/whatsapp-theme.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { MessageCircle } from 'lucide-react';
 import { DeviceProvider, useDevice } from './context/DeviceContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
