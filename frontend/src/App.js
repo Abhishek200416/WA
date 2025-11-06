@@ -101,6 +101,7 @@ function AppContent() {
           user ? (
             <div className="h-screen flex flex-col bg-[#111B21]">
               {platform === 'android' && <AndroidHeader />}
+              {platform === 'ios' && <IOSHeader title="Chats" />}
               <div className="flex-1 overflow-hidden">
                 <ChatListScreen />
               </div>
