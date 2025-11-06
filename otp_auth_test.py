@@ -199,7 +199,15 @@ class OTPAuthTester:
     def test_existing_user_login(self):
         """Test login with existing user (should work for both new and existing users)"""
         try:
-            # First, verify with email again (should be existing user now)
+            # First, request a new OTP for existing user
+            otp_response = requests.post(f"{self.api_url}/auth/request-otp", 
+                json={"email": "kolluriabhishek7108@gmail.com"})
+            
+            if otp_response.status_code != 200:
+                self.log_test("Existing User Login", False, "", f"OTP request failed: {otp_response.status_code}")
+                return False
+            
+            # Then verify with the new OTP (should be existing user now)
             response = requests.post(f"{self.api_url}/auth/verify-otp", json={
                 "email": "kolluriabhishek7108@gmail.com",
                 "otp": "123456",
