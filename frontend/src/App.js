@@ -15,8 +15,10 @@ import GroupsScreen from './pages/GroupsScreen';
 import CallsScreen from './pages/CallsScreen';
 import DesktopLayout from './components/Layout/DesktopLayout';
 import MobileLayout from './components/Layout/MobileLayout';
-import IOSNavBar from './components/Navigation/IOSNavBar';
-import AndroidTopBar from './components/Navigation/AndroidTopBar';
+import IOSBottomNav from './components/Navigation/IOSBottomNav';
+import AndroidBottomNav from './components/Navigation/AndroidBottomNav';
+import AndroidHeader from './components/Navigation/AndroidHeader';
+import DesktopSidebar from './components/Navigation/DesktopSidebar';
 import InstallPrompt from './components/PWA/InstallPrompt';
 import { Toaster } from '@/components/ui/sonner';
 
