@@ -1,0 +1,122 @@
+{
+  "total_tests": 12,
+  "passed_tests": 11,
+  "success_rate": 91.66666666666666,
+  "results": [
+    {
+      "test_name": "Auth - Request OTP",
+      "status": "PASS",
+      "details": "OTP received: 123456",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.059143"
+    },
+    {
+      "test_name": "Auth - Verify OTP",
+      "status": "PASS",
+      "details": "User created: 80a5f65b-1a79-4a88-a756-2df6101972b8",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.097477"
+    },
+    {
+      "test_name": "User - Get Current User",
+      "status": "PASS",
+      "details": "User: Alice Johnson",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.132808"
+    },
+    {
+      "test_name": "User - Update Profile",
+      "status": "PASS",
+      "details": "Profile updated successfully",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.172671"
+    },
+    {
+      "test_name": "Chat - Create Group",
+      "status": "PASS",
+      "details": "Group created: 25448262-fd75-49c3-b4ba-85a3f53d6c67",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.207877"
+    },
+    {
+      "test_name": "Chat - Get Chats",
+      "status": "PASS",
+      "details": "Found 2 chats",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.242904"
+    },
+    {
+      "test_name": "Message - Send Text",
+      "status": "PASS",
+      "details": "Message sent: 855a35ec-5484-4aea-97ea-1e4edb23c182",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.282953"
+    },
+    {
+      "test_name": "Message - Get Messages",
+      "status": "PASS",
+      "details": "Retrieved 1 messages",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.319674"
+    },
+    {
+      "test_name": "File - Upload",
+      "status": "PASS",
+      "details": "File uploaded: 051ddd54-98c8-49c8-9152-7840bdb63f89",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.350755"
+    },
+    {
+      "test_name": "Status - Create",
+      "status": "FAIL",
+      "details": "",
+      "error": "Status: 422",
+      "timestamp": "2025-11-06T08:56:21.383057"
+    },
+    {
+      "test_name": "Status - Get All",
+      "status": "PASS",
+      "details": "Retrieved 0 statuses",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.456731"
+    },
+    {
+      "test_name": "Socket.IO - Connection Test",
+      "status": "PASS",
+      "details": "Socket.IO endpoint accessible",
+      "error": "",
+      "timestamp": "2025-11-06T08:56:21.495178"
+    }
+  ],
+  "user_data": {
+    "id": "80a5f65b-1a79-4a88-a756-2df6101972b8",
+    "phone_number": "+15551234567",
+    "email": null,
+    "username": "alice",
+    "display_name": "Alice Johnson",
+    "avatar_url": null,
+    "about": "Love coding and coffee!",
+    "public_key": "test_public_key_alice",
+    "identity_key": null,
+    "created_at": "2025-11-06T08:54:42.648138+00:00",
+    "last_seen": "2025-11-06T08:54:42.648147+00:00",
+    "privacy_settings": {
+      "profile_photo": "everyone",
+      "about": "everyone",
+      "last_seen": "everyone",
+      "status": "contacts",
+      "read_receipts": true,
+      "online_status": true
+    }
+  },
+  "device_data": {
+    "id": "faa765f2-27b0-4ddf-830e-1467801efbeb",
+    "user_id": "80a5f65b-1a79-4a88-a756-2df6101972b8",
+    "device_name": "Test Device",
+    "device_type": "web",
+    "public_key": "test_public_key_123",
+    "created_at": "2025-11-06T08:56:21.094036+00:00",
+    "last_active": "2025-11-06T08:56:21.094038+00:00",
+    "is_active": true
+  }
+}
