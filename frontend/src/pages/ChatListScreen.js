@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ChatListItem from '@/components/Chat/ChatListItem';
+import ChatFilters from '@/components/Chat/ChatFilters';
 import WALogo from '@/components/Branding/WALogo';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
