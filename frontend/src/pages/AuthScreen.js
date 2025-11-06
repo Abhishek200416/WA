@@ -105,9 +105,14 @@ const AuthScreen = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail,
+          [authType === 'phone' ? 'phone_number' : 'email']: phoneOrEmail,
           otp: otp,
-          ...profileData
+          device_name: 'Web Browser',
+          device_type: 'web',
+          public_key: 'demo_public_key_' + Date.now(),
+          name: profileData.name,
+          username: profileData.username,
+          about: profileData.about
         })
       });
 
@@ -116,7 +121,7 @@ const AuthScreen = () => {
         login(data.user);
         toast.success('Profile created! Welcome to WA');
       } else {
-        toast.error('Failed to create profile');
+        toast.error(data.detail || 'Failed to create profile');
       }
     } catch (error) {
       toast.error('Error: ' + error.message);
