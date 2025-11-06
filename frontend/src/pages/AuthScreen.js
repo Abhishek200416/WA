@@ -36,7 +36,7 @@ const AuthScreen = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          [authType === 'phone' ? 'phone' : 'email']: phoneOrEmail
+          [authType === 'phone' ? 'phone_number' : 'email']: phoneOrEmail
         })
       });
 
@@ -44,7 +44,8 @@ const AuthScreen = () => {
         toast.success('OTP sent! Use 123456 for testing');
         setStep('otp');
       } else {
-        toast.error('Failed to send OTP');
+        const errorData = await response.json();
+        toast.error(errorData.detail || 'Failed to send OTP');
       }
     } catch (error) {
       toast.error('Error: ' + error.message);
