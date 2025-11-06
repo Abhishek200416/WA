@@ -37,7 +37,7 @@ function AppContent() {
     );
   }
 
-  // Desktop layout
+  // Desktop layout with new sidebar
   if (type === 'desktop') {
     return (
       <Routes>
@@ -46,16 +46,26 @@ function AppContent() {
           path="/*"
           element={
             user ? (
-              <DesktopLayout>
-                <ChatListScreen />
-              </DesktopLayout>
+              <div className="flex h-screen bg-[#111B21]">
+                <div className="w-[400px] border-r border-[#2A3942] flex flex-col">
+                  <DesktopSidebar />
+                </div>
+                <div className="flex-1 flex flex-col">
+                  <Routes>
+                    <Route path="/" element={<ChatListScreen />} />
+                    <Route path="/chat/:chatId" element={<ChatScreen />} />
+                    <Route path="/calls" element={<CallsScreen />} />
+                    <Route path="/status" element={<StatusScreen />} />
+                    <Route path="/settings" element={<SettingsScreen />} />
+                    <Route path="/groups" element={<GroupsScreen />} />
+                  </Routes>
+                </div>
+              </div>
             ) : (
               <Navigate to="/auth" />
             )
           }
-        >
-          <Route path="chat/:chatId" element={<ChatScreen />} />
-        </Route>
+        />
       </Routes>
     );
   }
