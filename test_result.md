@@ -136,6 +136,12 @@ backend:
       - working: true
         agent: "main"
         comment: "Mock OTP (123456) for testing. Endpoints: /api/auth/request-otp, /api/auth/verify-otp"
+      - working: true
+        agent: "user"
+        comment: "Bug reported: 'login is not a function' error during OTP verification"
+      - working: true
+        agent: "main"
+        comment: "BUG FIXED: AuthScreen was calling non-existent login() function. Updated to properly store auth data in localStorage and reload page. OTP verification now working perfectly."
   
   - task: "Messaging endpoints"
     implemented: true
