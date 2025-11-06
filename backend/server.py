@@ -769,15 +769,6 @@ async def call_signal(sid, data):
         target_sid = active_connections[target_user_id]
         await sio.emit('call_signal', signal_data, room=target_sid)
 
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -789,6 +780,6 @@ logger = logging.getLogger(__name__)
 async def shutdown_db_client():
     client.close()
 
-# Wrap Socket.IO with ASGI - this becomes the main app
-socket_app = socketio.ASGIApp(sio, app)
-app = socket_app
+# Mount Socket.IO on the FastAPI app instead of wrapping it
+# This allows both HTTP routes and Socket.IO to work together
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app, socketio_path='socket.io')
