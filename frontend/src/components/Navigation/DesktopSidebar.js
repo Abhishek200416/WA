@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MessageCircle, Phone, Clock, Settings as SettingsIcon, Menu, X } from 'lucide-react';
+import { MessageCircle, Phone, Clock, Settings as SettingsIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAuth } from '../../context/AuthContext';
 
-const DesktopSidebar = ({ children }) => {
+const DesktopSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
-  const [expanded, setExpanded] = useState(false);
+  const { user } = useAuth();
 
   const menuItems = [
     { id: 'chats', label: 'Chats', icon: MessageCircle, path: '/' },
-    { id: 'calls', label: 'Calls', icon: Phone, path: '/calls' },
     { id: 'status', label: 'Status', icon: Clock, path: '/status' },
+    { id: 'calls', label: 'Calls', icon: Phone, path: '/calls' },
   ];
 
   const isActive = (path) => {
@@ -23,32 +28,17 @@ const DesktopSidebar = ({ children }) => {
     return location.pathname.startsWith(path);
   };
 
-  return (
-    <div className="h-full flex flex-col bg-[#202C33]">
-      {/* Header */}
-      <div className="h-[60px] bg-[#202C33] border-b border-[#2A3942] px-4 flex items-center justify-between">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="p-2 hover:bg-[#2A3942] rounded-full transition-colors"
-        >
-          {expanded ? <X size={20} className="text-[#AEBAC1]" /> : <Menu size={20} className="text-[#AEBAC1]" />}
-        </button>
-        
-        {expanded && (
-          <span className="text-[#E9EDEF] text-lg font-semibold">WhatsApp</span>
-        )}
-      </div>
-
-      {/* Navigation Menu */}
-      <div className="flex-1 py-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
-          return (
+  const NavButton = ({ item }) => {
+    const Icon = item.icon;
+    const active = isActive(item.path);
+    
+    return (
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <button
-              key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+              className={`w-full h-[72px] flex items-center justify-center transition-colors relative ${
                 active ? 'bg-[#2A3942]' : 'hover:bg-[#2A3942]'
               }`}
             >
@@ -56,41 +46,55 @@ const DesktopSidebar = ({ children }) => {
                 size={24}
                 className={active ? 'text-[#00A884]' : 'text-[#AEBAC1]'}
               />
-              {expanded && (
-                <span
-                  className={`text-sm font-medium ${
-                    active ? 'text-[#E9EDEF]' : 'text-[#AEBAC1]'
-                  }`}
-                >
-                  {item.label}
-                </span>
+              {active && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00A884] rounded-r-full"></div>
               )}
             </button>
-          );
-        })}
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-[#111B21] border-[#2A3942] text-white">
+            <p>{item.label}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-[#202C33]">
+      {/* Navigation Menu */}
+      <div className="flex-1">
+        {menuItems.map((item) => (
+          <NavButton key={item.id} item={item} />
+        ))}
       </div>
 
       {/* Settings at Bottom */}
       <div className="border-t border-[#2A3942]">
-        <button
-          onClick={() => navigate('/settings')}
-          className={`w-full flex items-center gap-3 px-4 py-4 transition-colors ${
-            location.pathname === '/settings' ? 'bg-[#2A3942]' : 'hover:bg-[#2A3942]'
-          }`}
-        >
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={user?.avatar} />
-            <AvatarFallback className="bg-[#54656F] text-white">
-              {user?.name?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          {expanded && (
-            <div className="flex-1 text-left">
-              <p className="text-[#E9EDEF] text-sm font-medium">{user?.name || 'User'}</p>
-              <p className="text-[#8696A0] text-xs">@{user?.username || 'username'}</p>
-            </div>
-          )}
-        </button>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => navigate('/settings')}
+                className={`w-full h-[72px] flex items-center justify-center transition-colors relative ${
+                  location.pathname === '/settings' ? 'bg-[#2A3942]' : 'hover:bg-[#2A3942]'
+                }`}
+              >
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user?.avatar} />
+                  <AvatarFallback className="bg-[#54656F] text-white text-sm">
+                    {user?.name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                {location.pathname === '/settings' && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00A884] rounded-r-full"></div>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="bg-[#111B21] border-[#2A3942] text-white">
+              <p>Settings</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );
