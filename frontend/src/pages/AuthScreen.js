@@ -122,8 +122,12 @@ const AuthScreen = () => {
 
       const data = await response.json();
       if (response.ok) {
-        login(data.user);
+        // Store user and device data
+        localStorage.setItem('wa_user', JSON.stringify(data.user));
+        localStorage.setItem('wa_device', JSON.stringify(data.device));
+        localStorage.setItem('wa_token', data.token || '');
         toast.success('Profile created! Welcome to WA');
+        window.location.reload(); // Reload to update auth context
       } else {
         toast.error(data.detail || 'Failed to create profile');
       }
