@@ -80,8 +80,12 @@ const AuthScreen = () => {
           toast.success('Verified! Please complete your profile');
           setStep('profile');
         } else {
-          login(data.user);
+          // Store user and device data
+          localStorage.setItem('wa_user', JSON.stringify(data.user));
+          localStorage.setItem('wa_device', JSON.stringify(data.device));
+          localStorage.setItem('wa_token', data.token || '');
           toast.success('Welcome back!');
+          window.location.reload(); // Reload to update auth context
         }
       } else {
         toast.error(data.detail || 'Invalid OTP');
