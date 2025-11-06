@@ -1,42 +1,42 @@
 {
   "total_tests": 5,
-  "passed_tests": 4,
-  "success_rate": 80.0,
+  "passed_tests": 5,
+  "success_rate": 100.0,
   "results": [
     {
       "test_name": "OTP Request - Email",
       "status": "PASS",
       "details": "OTP received successfully: 123456",
       "error": "",
-      "timestamp": "2025-11-06T16:30:52.904275"
+      "timestamp": "2025-11-06T16:31:15.296765"
     },
     {
       "test_name": "OTP Verify - Email",
       "status": "PASS",
-      "details": "User: a514080d-1345-43d2-9336-b863716ed32b, Device: 5630dfae-fa9e-4afc-8d73-26351892f74f, Token: a514080d-1..., New User Flag: False",
+      "details": "User: a514080d-1345-43d2-9336-b863716ed32b, Device: ea4374ac-cac8-4b2a-a2af-13a9a3e9c95c, Token: a514080d-1..., New User Flag: False",
       "error": "",
-      "timestamp": "2025-11-06T16:30:53.076630"
+      "timestamp": "2025-11-06T16:31:15.414823"
     },
     {
       "test_name": "OTP Request - Phone",
       "status": "PASS",
       "details": "OTP received successfully: 123456",
       "error": "",
-      "timestamp": "2025-11-06T16:30:53.161244"
+      "timestamp": "2025-11-06T16:31:15.588680"
     },
     {
       "test_name": "OTP Verify - Phone",
       "status": "PASS",
-      "details": "User: c3af86ca-7a83-4727-8416-8f4df47521e1, Device: 1472a037-b354-4498-8e23-bcabbe98e9b4, Token: c3af86ca-7..., New User Flag: False",
+      "details": "User: c3af86ca-7a83-4727-8416-8f4df47521e1, Device: f99f58aa-ce93-4638-9fa5-e3df50d82f2f, Token: c3af86ca-7..., New User Flag: False",
       "error": "",
-      "timestamp": "2025-11-06T16:30:53.370545"
+      "timestamp": "2025-11-06T16:31:15.781833"
     },
     {
       "test_name": "Existing User Login",
-      "status": "FAIL",
-      "details": "",
-      "error": "HTTP 400: {\"detail\":\"Invalid OTP\"}",
-      "timestamp": "2025-11-06T16:30:53.575221"
+      "status": "PASS",
+      "details": "Existing user login successful: a514080d-1345-43d2-9336-b863716ed32b",
+      "error": "",
+      "timestamp": "2025-11-06T16:31:15.965733"
     }
   ]
 }
