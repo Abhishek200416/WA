@@ -8,7 +8,7 @@ import { SocketProvider } from './context/SocketContext';
 import AuthScreen from './pages/AuthScreen';
 import ChatListScreen from './pages/ChatListScreen';
 import ChatScreen from './pages/ChatScreen';
-import SettingsScreen from './pages/SettingsScreen';
+import SettingsScreen from './pages/SettingsScreenNew';
 import StatusScreen from './pages/StatusScreen';
 import CallScreen from './pages/CallScreen';
 import GroupsScreen from './pages/GroupsScreen';
