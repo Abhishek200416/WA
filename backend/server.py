@@ -677,6 +677,15 @@ async def initiate_call(user_id: str, chat_id: str, call_type: str):
 # Include router
 app.include_router(api_router)
 
+# CORS Middleware - Must be added before Socket.IO wrapping
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ===== SOCKET.IO EVENTS =====
 
 @sio.event
