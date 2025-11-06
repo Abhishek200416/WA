@@ -60,37 +60,37 @@ const ChatListItem = ({ chat, onClick, active = false }) => {
   return (
     <div
       onClick={onClick}
-      className={`wa-chat-item flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-[#202C33] ${
+      className={`wa-chat-item flex items-center gap-4 px-5 py-4 cursor-pointer transition-all active:bg-[#2A3942] hover:bg-[#202C33] ${
         active ? 'bg-[#2A3942]' : ''
       }`}
     >
       {/* Avatar */}
-      <Avatar className="w-12 h-12 flex-shrink-0">
-        <AvatarImage src={getAvatar()} alt={getDisplayName()} />
-        <AvatarFallback className="bg-[#54656F] text-white">
+      <Avatar className="w-[52px] h-[52px] flex-shrink-0 ring-1 ring-white/5">
+        <AvatarImage src={getAvatar()} alt={getDisplayName()} className="object-cover" />
+        <AvatarFallback className="bg-[#54656F] text-white text-lg font-medium">
           {getInitials()}
         </AvatarFallback>
       </Avatar>
 
       {/* Chat Info */}
-      <div className="flex-1 min-w-0 border-b border-[#2A3942] pb-3">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-medium text-[#E9EDEF] truncate">{getDisplayName()}</h3>
-          <span className="text-xs text-[#8696A0] flex-shrink-0">
+      <div className="flex-1 min-w-0 border-b border-[#2A3942]/60 pb-4">
+        <div className="flex items-start justify-between gap-3 mb-1.5">
+          <h3 className="font-semibold text-[16px] text-[#E9EDEF] truncate leading-tight">{getDisplayName()}</h3>
+          <span className="text-[12px] text-[#8696A0] flex-shrink-0 font-normal">
             {chat.last_message?.timestamp && formatTime(chat.last_message.timestamp)}
           </span>
         </div>
         
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 min-w-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
             {renderMessageStatus()}
-            <p className="text-sm text-[#8696A0] truncate">
+            <p className="text-[14px] text-[#8696A0] truncate leading-snug">
               {getLastMessageText()}
             </p>
           </div>
           
           {chat.unread_count > 0 && (
-            <span className="wa-unread-badge flex-shrink-0">
+            <span className="flex-shrink-0 bg-[#00A884] text-white text-[12px] font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5">
               {chat.unread_count}
             </span>
           )}
