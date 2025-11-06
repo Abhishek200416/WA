@@ -7,7 +7,7 @@ import requests
 import json
 
 def test_response_structure():
-    base_url = "https://chatconnect-68.preview.emergentagent.com"
+    base_url = "https://messenpro.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔍 Testing OTP Response Structure...")
