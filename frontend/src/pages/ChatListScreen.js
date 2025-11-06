@@ -32,6 +32,7 @@ const ChatListScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
   const { user, logout } = useAuth();
   const { socket } = useSocket();
   const { type, platform } = useDevice();
