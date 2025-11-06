@@ -170,7 +170,7 @@ const AuthScreen = () => {
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="phone">Phone</TabsTrigger>
                 <TabsTrigger value="email">Email</TabsTrigger>
-              </Tabs>
+              </TabsList>
               
               <TabsContent value="phone" className="space-y-4">
                 <div className="space-y-2">
