@@ -117,6 +117,34 @@ function AppContent() {
         }
       />
       <Route
+        path="/groups"
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              {platform === 'android' && <AndroidTopBar title="Groups" />}
+              <GroupsScreen />
+              {platform === 'ios' && <IOSNavBar />}
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
+      />
+      <Route
+        path="/calls"
+        element={
+          user ? (
+            <MobileLayout platform={platform}>
+              {platform === 'android' && <AndroidTopBar title="Calls" />}
+              <CallsScreen />
+              {platform === 'ios' && <IOSNavBar />}
+            </MobileLayout>
+          ) : (
+            <Navigate to="/auth" />
+          )
+        }
+      />
+      <Route
         path="/call/:callId"
         element={user ? <CallScreen /> : <Navigate to="/auth" />}
       />
