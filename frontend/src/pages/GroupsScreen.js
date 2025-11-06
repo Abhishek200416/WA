@@ -1,124 +1,107 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Users, Plus, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { useDevice } from '../context/DeviceContext';
+import axios from 'axios';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Search, Users, Plus } from 'lucide-react';
+import { toast } from 'sonner';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const GroupsScreen = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { type } = useDevice();
   const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    fetchGroups();
-  }, []);
+    if (user) {
+      fetchGroups();
+    }
+  }, [user]);
 
   const fetchGroups = async () => {
-    setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chats?user_id=${user.id}&type=group`);
-      if (response.ok) {
-        const data = await response.json();
-        setGroups(data);
-      }
+      const response = await axios.get(`${API}/chats?user_id=${user.id}`);
+      const groupChats = response.data.filter(chat => chat.type === 'group');
+      setGroups(groupChats);
     } catch (error) {
-      console.error('Error fetching groups:', error);
-    } finally {
-      setLoading(false);
+      console.error('Failed to fetch groups:', error);
     }
   };
 
-  const filteredGroups = groups.filter(group =>
-    group.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredGroups = groups.filter(group => {
+    if (!searchQuery) return true;
+    return group.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
-    <div className="flex flex-col h-full bg-[#0B141A]">
-      {/* Header */}
-      <div className="bg-[#1F2C34] p-4 border-b border-[#2A3942]">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-white text-xl font-semibold">Groups</h1>
-          <Button
-            size="sm"
-            className="bg-[#25D366] hover:bg-[#20BD5F] text-white"
-            onClick={() => navigate('/create-group')}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Group
-          </Button>
-        </div>
-        
-        {/* Search */}
+    <div className="h-full flex flex-col bg-[#111B21] relative">
+      {/* Search Bar */}
+      <div className="px-3 py-2 bg-[#111B21]">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#8696A0]" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8696A0]" size={18} />
           <Input
-            placeholder="Search groups..."
+            type="text"
+            placeholder="Search groups"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-[#1F2C34] border-[#2A3942] text-white placeholder:text-[#8696A0]"
+            className="pl-10 bg-[#202C33] border-none text-white placeholder:text-[#8696A0] h-9 rounded-lg"
           />
         </div>
       </div>
 
       {/* Groups List */}
-      <div className="flex-1 overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#25D366]"></div>
-          </div>
-        ) : filteredGroups.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <Users className="h-20 w-20 text-[#8696A0] mb-4" />
-            <h3 className="text-white text-lg font-medium mb-2">No Groups Yet</h3>
-            <p className="text-[#8696A0] text-sm mb-4">
-              Create a group to start chatting with multiple people at once
-            </p>
-            <Button
-              className="bg-[#25D366] hover:bg-[#20BD5F] text-white"
-              onClick={() => navigate('/create-group')}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Group
-            </Button>
+      <ScrollArea className="flex-1">
+        {filteredGroups.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+            <Users size={64} className="text-[#54656F] mb-4" />
+            <p className="text-[#E9EDEF] text-lg font-medium mb-2">No groups yet</p>
+            <p className="text-[#8696A0] text-sm">Create a group to get started</p>
           </div>
         ) : (
-          <div>
+          <div className="divide-y divide-[#2A3942]">
             {filteredGroups.map((group) => (
               <div
                 key={group.id}
+                className="flex items-center gap-3 p-4 hover:bg-[#202C33] cursor-pointer transition-colors"
                 onClick={() => navigate(`/chat/${group.id}`)}
-                className="flex items-center gap-3 p-4 hover:bg-[#1F2C34] cursor-pointer border-b border-[#2A3942]"
               >
-                <Avatar className="h-12 w-12">
+                <Avatar className="w-12 h-12">
                   <AvatarImage src={group.avatar} />
-                  <AvatarFallback className="bg-[#25D366] text-white">
-                    <Users className="h-6 w-6" />
+                  <AvatarFallback className="bg-[#54656F] text-white">
+                    <Users size={24} />
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-white font-medium truncate">{group.name}</h3>
-                    <span className="text-xs text-[#8696A0]">
-                      {group.last_message_time && new Date(group.last_message_time).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#8696A0] truncate">
-                    {group.last_message || `${group.participants?.length || 0} participants`}
+                  <p className="text-[#E9EDEF] text-[15px] font-medium truncate">
+                    {group.name}
+                  </p>
+                  <p className="text-[#8696A0] text-sm truncate">
+                    {group.participants?.length || 0} members
                   </p>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </ScrollArea>
+
+      {/* Floating Action Button - Mobile only */}
+      {type !== 'desktop' && (
+        <button
+          className="fixed bottom-20 right-6 w-14 h-14 bg-[#00A884] rounded-full flex items-center justify-center shadow-lg hover:bg-[#06CF7A] transition-colors z-10"
+          onClick={() => navigate('/groups/new')}
+        >
+          <Plus size={24} className="text-white" />
+        </button>
+      )}
     </div>
   );
 };

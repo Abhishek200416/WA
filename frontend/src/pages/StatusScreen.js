@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, X } from 'lucide-react';
+import { Plus, Eye, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -18,7 +18,7 @@ const StatusScreen = () => {
   const [statuses, setStatuses] = useState([]);
   const [viewingStatus, setViewingStatus] = useState(null);
   const { user } = useAuth();
-  const { platform } = useDevice();
+  const { type } = useDevice();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,7 +45,6 @@ const StatusScreen = () => {
   };
 
   const createStatus = async () => {
-    // Simple text status for demo
     try {
       await axios.post(`${API}/status?user_id=${user.id}`, {
         content_type: 'text',
@@ -61,50 +60,33 @@ const StatusScreen = () => {
 
   const viewStatus = (statusGroup) => {
     setViewingStatus(statusGroup[0]);
-    // Auto advance through statuses
     setTimeout(() => {
       setViewingStatus(null);
     }, 5000);
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50" data-testid="status-screen">
-      {/* Header */}
-      <div className={`${platform === 'ios' ? 'nav-bar' : platform === 'android' ? 'bg-green-600' : 'bg-white border-b'} px-4 py-3 flex items-center gap-3`}>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/')}
-          className={platform === 'android' ? 'text-white' : ''}
-          data-testid="back-button"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h1 className={`text-xl font-semibold ${platform === 'android' ? 'text-white' : 'text-gray-900'}`}>
-          Status
-        </h1>
-      </div>
-
+    <div className="h-full flex flex-col bg-[#111B21]">
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
           {/* My Status */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-500 mb-3">MY STATUS</h2>
-            <div className="flex items-center gap-3 cursor-pointer" onClick={createStatus}>
+            <h2 className="text-sm font-semibold text-[#8696A0] mb-3">MY STATUS</h2>
+            <div className="flex items-center gap-3 cursor-pointer p-3 hover:bg-[#202C33] rounded-lg transition-colors" onClick={createStatus}>
               <div className="relative">
                 <Avatar className="w-14 h-14">
-                  <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback className="bg-green-200 text-green-800">
-                    {user?.display_name?.charAt(0)}
+                  <AvatarImage src={user?.avatar} />
+                  <AvatarFallback className="bg-[#54656F] text-white">
+                    {user?.name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                  <Plus className="w-3 h-3 text-white" />
+                <div className="absolute bottom-0 right-0 bg-[#00A884] rounded-full p-1">
+                  <Plus size={14} className="text-white" />
                 </div>
               </div>
               <div>
-                <p className="font-medium">My Status</p>
-                <p className="text-sm text-gray-500">Tap to add status update</p>
+                <p className="text-[#E9EDEF] font-medium">My status</p>
+                <p className="text-[#8696A0] text-sm">Tap to add status update</p>
               </div>
             </div>
           </div>
@@ -112,84 +94,57 @@ const StatusScreen = () => {
           {/* Recent Updates */}
           {statuses.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-500 mb-3">RECENT UPDATES</h2>
-              <div className="space-y-3">
+              <h2 className="text-sm font-semibold text-[#8696A0] mb-3">RECENT UPDATES</h2>
+              <div className="space-y-2">
                 {statuses.map((statusGroup, index) => {
                   const status = statusGroup[0];
                   return (
                     <div
                       key={index}
-                      className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+                      className="flex items-center gap-3 cursor-pointer p-3 hover:bg-[#202C33] rounded-lg transition-colors"
                       onClick={() => viewStatus(statusGroup)}
                     >
-                      <div className="status-ring">
-                        <Avatar className="w-14 h-14">
-                          <AvatarImage src="" />
-                          <AvatarFallback className="bg-blue-200">U</AvatarFallback>
+                      <div className="relative">
+                        <Avatar className="w-14 h-14 ring-2 ring-[#00A884]">
+                          <AvatarImage src={status.user?.avatar} />
+                          <AvatarFallback className="bg-[#54656F] text-white">
+                            {status.user?.name?.charAt(0) || 'U'}
+                          </AvatarFallback>
                         </Avatar>
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium">Contact</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-[#E9EDEF] font-medium">{status.user?.name || 'User'}</p>
+                        <p className="text-[#8696A0] text-sm">
                           {formatDistanceToNow(new Date(status.created_at), { addSuffix: true })}
                         </p>
                       </div>
+                      <Clock size={16} className="text-[#8696A0]" />
                     </div>
                   );
                 })}
               </div>
             </div>
           )}
+
+          {statuses.length === 0 && (
+            <div className="text-center py-12">
+              <Eye size={64} className="text-[#54656F] mx-auto mb-4" />
+              <p className="text-[#8696A0]">No status updates yet</p>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
       {/* Status Viewer Dialog */}
-      <Dialog open={!!viewingStatus} onOpenChange={() => setViewingStatus(null)}>
-        <DialogContent className="max-w-lg h-[600px] p-0 bg-black border-0" data-testid="status-viewer">
-          {viewingStatus && (
-            <div className="relative h-full flex items-center justify-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setViewingStatus(null)}
-                className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
-              >
-                <X className="w-6 h-6" />
-              </Button>
-              
-              {/* Progress Bar */}
-              <div className="absolute top-2 left-2 right-2 h-1 bg-white/30 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full animate-progress" style={{ animation: 'progress 5s linear' }} />
-              </div>
-
-              {/* Status Content */}
-              <div className="text-center p-8">
-                {viewingStatus.content_type === 'text' ? (
-                  <div
-                    className="text-white text-3xl font-medium"
-                    style={{ backgroundColor: viewingStatus.background_color }}
-                  >
-                    <p className="p-12 rounded-lg">{viewingStatus.content}</p>
-                  </div>
-                ) : viewingStatus.content_type === 'image' ? (
-                  <img 
-                    src={`${BACKEND_URL}${viewingStatus.media_url}`}
-                    alt="status"
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : null}
-              </div>
+      {viewingStatus && (
+        <Dialog open={!!viewingStatus} onOpenChange={() => setViewingStatus(null)}>
+          <DialogContent className="bg-[#111B21] border-[#2A3942]">
+            <div className="text-center p-8">
+              <p className="text-[#E9EDEF] text-xl">{viewingStatus.content}</p>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <style>{`
-        @keyframes progress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-      `}</style>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
