@@ -195,8 +195,8 @@ const ChatListScreen = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#111B21]">
-      {/* Header */}
+    <div className="flex flex-col h-full bg-[#111B21] pb-[56px] md:pb-0">
+      {/* Header - Desktop only */}
       {type === 'desktop' && <DesktopHeader />}
 
       {/* Search Bar */}
