@@ -70,10 +70,22 @@ const ChatHeader = ({ chat, typing = false, online = false }) => {
         <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
           <Search className="w-5 h-5 text-gray-600" />
         </button>
-        <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+        <button 
+          className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+          onClick={() => {
+            setCallType('video');
+            setShowCallModal(true);
+          }}
+        >
           <Video className="w-5 h-5 text-gray-600" />
         </button>
-        <button className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+        <button 
+          className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+          onClick={() => {
+            setCallType('audio');
+            setShowCallModal(true);
+          }}
+        >
           <Phone className="w-5 h-5 text-gray-600" />
         </button>
         
