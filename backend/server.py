@@ -307,7 +307,8 @@ async def verify_otp(data: OTPVerify):
     return {
         "user": user.model_dump(),
         "device": device.model_dump(),
-        "token": user.id  # Simple token, use JWT in production
+        "token": user.id,  # Simple token, use JWT in production
+        "is_new_user": is_new_user
     }
 
 # ===== USER ENDPOINTS =====
