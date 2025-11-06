@@ -79,28 +79,32 @@ const DesktopSidebar = () => {
 
       {/* Settings at Bottom */}
       <div className="border-t border-[#2A3942]">
-        <TooltipProvider delayDuration={300}>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => navigate('/settings')}
-                className={`w-full h-[72px] flex items-center justify-center transition-colors relative ${
+                className={`w-full h-[72px] flex items-center justify-center transition-all duration-200 relative group ${
                   location.pathname === '/settings' ? 'bg-[#2A3942]' : 'hover:bg-[#2A3942]'
                 }`}
               >
-                <Avatar className="w-8 h-8">
+                <Avatar className="w-9 h-9 ring-2 ring-transparent group-hover:ring-[#00A884]/20 transition-all">
                   <AvatarImage src={user?.avatar} />
-                  <AvatarFallback className="bg-[#54656F] text-white text-sm">
+                  <AvatarFallback className="bg-[#54656F] text-white text-sm font-medium">
                     {user?.name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 {location.pathname === '/settings' && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-[#00A884] rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 bg-[#00A884] rounded-r-full shadow-lg shadow-[#00A884]/50"></div>
                 )}
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="bg-[#111B21] border-[#2A3942] text-white">
-              <p>Settings</p>
+            <TooltipContent 
+              side="right" 
+              className="bg-[#111B21] border-[#2A3942] text-white shadow-xl"
+              sideOffset={8}
+            >
+              <p className="text-sm font-medium">Settings</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
