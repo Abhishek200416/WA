@@ -1,0 +1,359 @@
+/* WhatsApp Color Scheme & Design System */
+:root {
+  /* WhatsApp Brand Colors */
+  --wa-primary: #25D366;
+  --wa-primary-dark: #128C7E;
+  --wa-primary-light: #DCF8C6;
+  --wa-teal: #075E54;
+  --wa-teal-dark: #054941;
+  
+  /* Background Colors */
+  --wa-bg-default: #EFEAE2;
+  --wa-bg-chat: #E5DDD5;
+  --wa-bg-panel: #FFFFFF;
+  --wa-bg-hover: #F5F5F5;
+  --wa-bg-selected: #ECE5DD;
+  
+  /* Message Bubbles */
+  --wa-bubble-incoming: #FFFFFF;
+  --wa-bubble-outgoing: #DCF8C6;
+  --wa-bubble-incoming-dark: #202C33;
+  --wa-bubble-outgoing-dark: #005C4B;
+  
+  /* Text Colors */
+  --wa-text-primary: #111B21;
+  --wa-text-secondary: #667781;
+  --wa-text-tertiary: #8696A0;
+  --wa-text-white: #FFFFFF;
+  --wa-text-light: #E9EDEF;
+  
+  /* Status Colors */
+  --wa-online: #25D366;
+  --wa-offline: #8696A0;
+  --wa-typing: #25D366;
+  --wa-unread-badge: #25D366;
+  --wa-error: #DF3F3F;
+  
+  /* Border & Divider */
+  --wa-border: #E9EDEF;
+  --wa-divider: #D1D7DB;
+  
+  /* Shadows */
+  --wa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --wa-shadow-md: 0 2px 5px rgba(0, 0, 0, 0.15);
+  --wa-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  
+  /* Typography */
+  --wa-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --wa-font-size-xs: 12px;
+  --wa-font-size-sm: 13px;
+  --wa-font-size-base: 14px;
+  --wa-font-size-md: 15px;
+  --wa-font-size-lg: 17px;
+  --wa-font-size-xl: 20px;
+  
+  /* Spacing */
+  --wa-spacing-xs: 4px;
+  --wa-spacing-sm: 8px;
+  --wa-spacing-md: 12px;
+  --wa-spacing-lg: 16px;
+  --wa-spacing-xl: 24px;
+  
+  /* Border Radius */
+  --wa-radius-sm: 4px;
+  --wa-radius-md: 7.5px;
+  --wa-radius-lg: 12px;
+  --wa-radius-full: 50px;
+  
+  /* Transitions */
+  --wa-transition: all 0.2s ease;
+  
+  /* Z-index */
+  --wa-z-dropdown: 1000;
+  --wa-z-modal: 2000;
+  --wa-z-toast: 3000;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --wa-bg-default: #0B141A;
+  --wa-bg-chat: #0B141A;
+  --wa-bg-panel: #111B21;
+  --wa-bg-hover: #202C33;
+  --wa-bg-selected: #2A3942;
+  
+  --wa-text-primary: #E9EDEF;
+  --wa-text-secondary: #8696A0;
+  --wa-text-tertiary: #667781;
+  
+  --wa-border: #2A3942;
+  --wa-divider: #2A3942;
+  
+  --wa-bubble-incoming: #202C33;
+  --wa-bubble-outgoing: #005C4B;
+}
+
+/* Base Styles */
+body {
+  font-family: var(--wa-font-family);
+  font-size: var(--wa-font-size-base);
+  color: var(--wa-text-primary);
+  background-color: var(--wa-bg-default);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* WhatsApp-style Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Message Bubble Styles */
+.wa-message-bubble {
+  position: relative;
+  padding: var(--wa-spacing-sm) var(--wa-spacing-md);
+  border-radius: var(--wa-radius-md);
+  max-width: 65%;
+  word-wrap: break-word;
+  box-shadow: var(--wa-shadow-sm);
+}
+
+.wa-message-incoming {
+  background-color: var(--wa-bubble-incoming);
+  border-radius: var(--wa-radius-md) var(--wa-radius-md) var(--wa-radius-md) 0;
+}
+
+.wa-message-outgoing {
+  background-color: var(--wa-bubble-outgoing);
+  border-radius: var(--wa-radius-md) var(--wa-radius-md) 0 var(--wa-radius-md);
+}
+
+/* Chat List Item */
+.wa-chat-item {
+  padding: var(--wa-spacing-md) var(--wa-spacing-lg);
+  border-bottom: 1px solid var(--wa-border);
+  transition: var(--wa-transition);
+  cursor: pointer;
+}
+
+.wa-chat-item:hover {
+  background-color: var(--wa-bg-hover);
+}
+
+.wa-chat-item.active {
+  background-color: var(--wa-bg-selected);
+}
+
+/* Status/Online Indicator */
+.wa-status-online {
+  width: 12px;
+  height: 12px;
+  background-color: var(--wa-online);
+  border-radius: 50%;
+  border: 2px solid var(--wa-bg-panel);
+}
+
+/* Unread Badge */
+.wa-unread-badge {
+  background-color: var(--wa-unread-badge);
+  color: white;
+  border-radius: var(--wa-radius-full);
+  padding: 2px 6px;
+  font-size: var(--wa-font-size-xs);
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Typing Indicator */
+.wa-typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.wa-typing-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--wa-text-secondary);
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.wa-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.wa-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Platform-specific Styles */
+
+/* iOS Specific */
+.device-ios {
+  /* iOS uses safe area insets */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.device-ios .wa-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--wa-bg-panel);
+  border-top: 1px solid var(--wa-border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Android Specific */
+.device-android .wa-header {
+  background-color: var(--wa-teal);
+  color: white;
+}
+
+.device-android .wa-fab {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--wa-primary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Desktop Specific */
+.device-desktop .wa-layout {
+  display: flex;
+  height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+  background: var(--wa-bg-default);
+}
+
+.device-desktop .wa-sidebar {
+  width: 400px;
+  border-right: 1px solid var(--wa-border);
+  background: var(--wa-bg-panel);
+}
+
+.device-desktop .wa-main {
+  flex: 1;
+  background: var(--wa-bg-chat);
+}
+
+/* Mobile Specific */
+.device-mobile .wa-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animations */
+.wa-slide-enter {
+  transform: translateX(100%);
+}
+
+.wa-slide-enter-active {
+  transform: translateX(0);
+  transition: transform 0.3s ease-out;
+}
+
+.wa-slide-exit {
+  transform: translateX(0);
+}
+
+.wa-slide-exit-active {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-out;
+}
+
+.wa-fade-enter {
+  opacity: 0;
+}
+
+.wa-fade-enter-active {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.wa-fade-exit {
+  opacity: 1;
+}
+
+.wa-fade-exit-active {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Message Ticks (Read Receipts) */
+.wa-tick {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+.wa-tick-single {
+  color: var(--wa-text-secondary);
+}
+
+.wa-tick-double {
+  color: var(--wa-text-secondary);
+}
+
+.wa-tick-read {
+  color: #53BDEB;
+}
+
+/* Reactions */
+.wa-reaction {
+  position: absolute;
+  bottom: -8px;
+  right: 8px;
+  background: white;
+  border-radius: var(--wa-radius-full);
+  padding: 2px 6px;
+  font-size: 14px;
+  box-shadow: var(--wa-shadow-md);
+  border: 1px solid var(--wa-border);
+}
+
+/* WhatsApp Header */
+.wa-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--wa-spacing-lg);
+  background: var(--wa-bg-panel);
+  border-bottom: 1px solid var(--wa-border);
+}
+
+/* Chat Background Pattern */
+.wa-chat-background {
+  background-color: var(--wa-bg-chat);
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23000' fill-opacity='0.02'/%3E%3C/svg%3E");
+}
