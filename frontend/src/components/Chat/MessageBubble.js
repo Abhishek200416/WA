@@ -1,125 +1,182 @@
-import React from 'react';
-import { Check, CheckCheck } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Check, CheckCheck, Smile, Reply, MoreVertical, Trash2, Edit2, Copy } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { format } from 'date-fns';
 
-const MessageBubble = ({ message, isOwn, showAvatar = true }) => {
-  const getStatusIcon = () => {
-    if (!isOwn) return null;
-    
-    switch (message.status) {
-      case 'sent':
-        return <Check className="w-4 h-4 text-gray-500" />;
-      case 'delivered':
-        return <CheckCheck className="w-4 h-4 text-gray-500" />;
-      case 'read':
-        return <CheckCheck className="w-4 h-4 text-[#53BDEB]" />;
-      default:
-        return null;
-    }
-  };
+const MessageBubble = ({ message, isOwn, onReply, onEdit, onDelete, onReact, senderName, senderAvatar }) => {
+  const [showActions, setShowActions] = useState(false);
 
   const formatTime = (timestamp) => {
-    try {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    } catch {
-      return '';
+    return format(new Date(timestamp), 'HH:mm');
+  };
+
+  const renderStatus = () => {
+    if (!isOwn) return null;
+    
+    const status = message.status;
+    if (status === 'read') {
+      return <CheckCheck size={16} className="text-[#53BDEB]" />;
+    } else if (status === 'delivered') {
+      return <CheckCheck size={16} className="text-[#8696A0]" />;
+    } else {
+      return <Check size={16} className="text-[#8696A0]" />;
     }
   };
 
-  const renderContent = () => {
-    if (message.message_type === 'image' && message.attachments?.length > 0) {
-      return (
-        <div className="mb-1">
-          <img 
-            src={message.attachments[0].url} 
-            alt="" 
-            className="rounded-lg max-w-full max-h-[300px] object-cover"
+  const renderAttachment = () => {
+    if (!message.attachments || message.attachments.length === 0) return null;
+    
+    return message.attachments.map((attachment, index) => {
+      if (attachment.type === 'image') {
+        return (
+          <img
+            key={index}
+            src={attachment.url}
+            alt="attachment"
+            className="max-w-[300px] rounded-lg mb-2"
           />
-          {message.content && (
-            <p className="mt-2 text-sm">{message.content}</p>
-          )}
-        </div>
-      );
-    }
-
-    if (message.message_type === 'video' && message.attachments?.length > 0) {
-      return (
-        <div className="mb-1">
-          <video 
-            src={message.attachments[0].url} 
-            controls 
-            className="rounded-lg max-w-full max-h-[300px]"
+        );
+      } else if (attachment.type === 'video') {
+        return (
+          <video
+            key={index}
+            src={attachment.url}
+            controls
+            className="max-w-[300px] rounded-lg mb-2"
           />
-          {message.content && (
-            <p className="mt-2 text-sm">{message.content}</p>
-          )}
-        </div>
-      );
-    }
-
-    if (message.message_type === 'audio' && message.attachments?.length > 0) {
-      return (
-        <div className="flex items-center gap-2">
-          <audio src={message.attachments[0].url} controls className="max-w-full" />
-        </div>
-      );
-    }
-
-    if (message.message_type === 'document' && message.attachments?.length > 0) {
-      return (
-        <div className="flex items-center gap-2 p-2 bg-white/10 rounded">
-          <div className="text-2xl">📄</div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{message.attachments[0].filename}</p>
-            <p className="text-xs text-gray-500">{(message.attachments[0].size / 1024).toFixed(1)} KB</p>
+        );
+      } else {
+        return (
+          <div key={index} className="flex items-center gap-2 p-2 bg-black/10 rounded-lg mb-2">
+            <div className="flex-1">
+              <p className="text-sm font-medium">{attachment.name}</p>
+              <p className="text-xs text-[#8696A0]">{attachment.size}</p>
+            </div>
           </div>
-        </div>
-      );
-    }
-
-    return <p className="text-[14.2px] leading-[19px] whitespace-pre-wrap break-words">{message.content}</p>;
+        );
+      }
+    });
   };
 
   return (
-    <div className={`flex items-end gap-2 mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-      {!isOwn && showAvatar && (
-        <div className="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0" />
+    <div
+      className={`flex gap-2 mb-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
+      {!isOwn && (
+        <Avatar className="w-8 h-8 flex-shrink-0">
+          <AvatarImage src={senderAvatar} />
+          <AvatarFallback className="bg-[#54656F] text-white text-xs">
+            {senderName?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
       )}
-      
-      <div
-        className={`relative max-w-[65%] px-2 py-1.5 rounded-lg shadow-sm ${
-          isOwn
-            ? 'bg-[#D9FDD3] rounded-br-none'
-            : 'bg-white rounded-bl-none'
-        }`}
-      >
-        {message.reply_to && (
-          <div className="mb-2 p-2 bg-black/5 rounded border-l-4 border-[#06CF9C]">
-            <p className="text-xs text-gray-600 font-semibold mb-1">Reply</p>
-            <p className="text-xs text-gray-700 truncate">Previous message...</p>
+
+      <div className="flex items-end gap-2 max-w-[65%]">
+        {/* Message Actions (Left side for own messages) */}
+        {isOwn && showActions && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1 hover:bg-[#2A3942] rounded-full transition-colors opacity-70 hover:opacity-100">
+                <MoreVertical size={16} className="text-[#8696A0]" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => onReply(message)}>
+                <Reply size={16} className="mr-2" /> Reply
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onReact(message)}>
+                <Smile size={16} className="mr-2" /> React
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>
+                <Copy size={16} className="mr-2" /> Copy
+              </DropdownMenuItem>
+              {isOwn && (
+                <>
+                  <DropdownMenuItem onClick={() => onEdit(message)}>
+                    <Edit2 size={16} className="mr-2" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onDelete(message)} className="text-red-500">
+                    <Trash2 size={16} className="mr-2" /> Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {/* Message Bubble */}
+        <div
+          className={`wa-message-bubble relative ${
+            isOwn ? 'wa-message-outgoing' : 'wa-message-incoming'
+          }`}
+        >
+          {!isOwn && message.sender_name && (
+            <p className="text-xs font-semibold text-[#25D366] mb-1">{senderName}</p>
+          )}
+          
+          {message.reply_to && (
+            <div className="bg-black/10 border-l-4 border-[#25D366] pl-2 py-1 mb-2 text-xs">
+              <p className="font-semibold text-[#25D366]">{message.reply_to.sender_name}</p>
+              <p className="text-[#8696A0]">{message.reply_to.text}</p>
+            </div>
+          )}
+
+          {renderAttachment()}
+          
+          {message.text && (
+            <p className={`text-sm ${isOwn ? 'text-[#111B21]' : 'text-[#E9EDEF]'} whitespace-pre-wrap break-words`}>
+              {message.text}
+            </p>
+          )}
+          
+          {message.edited && (
+            <span className="text-xs text-[#8696A0] italic"> (edited)</span>
+          )}
+          
+          <div className="flex items-center justify-end gap-1 mt-1">
+            <span className={`text-xs ${isOwn ? 'text-[#667781]' : 'text-[#8696A0]'}`}>
+              {formatTime(message.timestamp)}
+            </span>
+            {renderStatus()}
           </div>
-        )}
-        
-        {renderContent()}
-        
-        {message.is_edited && (
-          <span className="text-[11px] text-gray-500 mr-1">edited</span>
-        )}
-        
-        <div className="flex items-center justify-end gap-1 mt-1">
-          <span className="text-[11px] text-gray-500">
-            {formatTime(message.created_at)}
-          </span>
-          {getStatusIcon()}
+
+          {/* Reactions */}
+          {message.reactions && message.reactions.length > 0 && (
+            <div className="wa-reaction">
+              {message.reactions.slice(0, 3).map((r, i) => r.emoji).join(' ')}
+              {message.reactions.length > 3 && ` +${message.reactions.length - 3}`}
+            </div>
+          )}
         </div>
 
-        {message.reactions && message.reactions.length > 0 && (
-          <div className="wa-reaction">
-            {message.reactions.map((r, i) => (
-              <span key={i}>{r.emoji}</span>
-            ))}
-          </div>
+        {/* Message Actions (Right side for other messages) */}
+        {!isOwn && showActions && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1 hover:bg-[#2A3942] rounded-full transition-colors opacity-70 hover:opacity-100">
+                <MoreVertical size={16} className="text-[#8696A0]" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onReply(message)}>
+                <Reply size={16} className="mr-2" /> Reply
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onReact(message)}>
+                <Smile size={16} className="mr-2" /> React
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(message.text)}>
+                <Copy size={16} className="mr-2" /> Copy
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
     </div>
