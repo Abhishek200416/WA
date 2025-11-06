@@ -47,17 +47,36 @@ function AppContent() {
           element={
             user ? (
               <div className="flex h-screen bg-[#111B21]">
-                <div className="w-[400px] border-r border-[#2A3942] flex flex-col">
+                {/* Left Navigation Sidebar */}
+                <div className="w-[72px] border-r border-[#2A3942] flex flex-col">
                   <DesktopSidebar />
                 </div>
-                <div className="flex-1 flex flex-col">
+                
+                {/* Middle Section - Chat List or Other Screens */}
+                <div className="w-[400px] border-r border-[#2A3942] flex flex-col">
                   <Routes>
                     <Route path="/" element={<ChatListScreen />} />
-                    <Route path="/chat/:chatId" element={<ChatScreen />} />
+                    <Route path="/chat/:chatId" element={<ChatListScreen />} />
                     <Route path="/calls" element={<CallsScreen />} />
                     <Route path="/status" element={<StatusScreen />} />
                     <Route path="/settings" element={<SettingsScreen />} />
                     <Route path="/groups" element={<GroupsScreen />} />
+                  </Routes>
+                </div>
+                
+                {/* Right Section - Chat Window */}
+                <div className="flex-1 flex flex-col">
+                  <Routes>
+                    <Route path="/" element={
+                      <div className="flex items-center justify-center h-full bg-[#222E35]">
+                        <div className="text-center">
+                          <MessageCircle size={120} className="text-[#54656F] mx-auto mb-6" />
+                          <h2 className="text-[#E9EDEF] text-3xl font-light mb-2">WA for Desktop</h2>
+                          <p className="text-[#8696A0] text-sm">Select a chat to start messaging</p>
+                        </div>
+                      </div>
+                    } />
+                    <Route path="/chat/:chatId" element={<ChatScreen />} />
                   </Routes>
                 </div>
               </div>
