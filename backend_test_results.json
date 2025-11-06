@@ -1,91 +1,91 @@
 {
   "total_tests": 12,
-  "passed_tests": 11,
-  "success_rate": 91.66666666666666,
+  "passed_tests": 12,
+  "success_rate": 100.0,
   "results": [
     {
       "test_name": "Auth - Request OTP",
       "status": "PASS",
       "details": "OTP received: 123456",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.699619"
+      "timestamp": "2025-11-06T09:29:28.408212"
     },
     {
       "test_name": "Auth - Verify OTP",
       "status": "PASS",
       "details": "User created: b9a49b9e-ebd1-41a2-bf53-ca4bc975767d",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.754000"
+      "timestamp": "2025-11-06T09:29:28.522483"
     },
     {
       "test_name": "User - Get Current User",
       "status": "PASS",
-      "details": "User: +15551234567",
+      "details": "User: Test User Updated",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.813168"
+      "timestamp": "2025-11-06T09:29:28.679176"
     },
     {
       "test_name": "User - Update Profile",
       "status": "PASS",
       "details": "Profile updated successfully",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.865309"
+      "timestamp": "2025-11-06T09:29:28.741457"
     },
     {
       "test_name": "Chat - Create Group",
       "status": "PASS",
-      "details": "Group created: cf6ecec6-3e15-4b0a-8396-c151e506b298",
+      "details": "Group created: 8e2aeffd-2c15-43f0-a141-f770acfadd77",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.933948"
+      "timestamp": "2025-11-06T09:29:28.905040"
     },
     {
       "test_name": "Chat - Get Chats",
       "status": "PASS",
-      "details": "Found 1 chats",
+      "details": "Found 2 chats",
       "error": "",
-      "timestamp": "2025-11-06T09:27:47.982821"
+      "timestamp": "2025-11-06T09:29:29.014361"
     },
     {
       "test_name": "Message - Send Text",
       "status": "PASS",
-      "details": "Message sent: 06429ea7-467e-4db5-8abc-54147f1c63f8",
+      "details": "Message sent: 8c6815b2-91c1-48d5-b9f3-039c11e2d2b6",
       "error": "",
-      "timestamp": "2025-11-06T09:27:48.058298"
+      "timestamp": "2025-11-06T09:29:29.147675"
     },
     {
       "test_name": "Message - Get Messages",
       "status": "PASS",
       "details": "Retrieved 1 messages",
       "error": "",
-      "timestamp": "2025-11-06T09:27:48.113209"
+      "timestamp": "2025-11-06T09:29:29.235288"
     },
     {
       "test_name": "File - Upload",
       "status": "PASS",
-      "details": "File uploaded: 50f15ecd-6866-41ff-aa71-f7442b9ece70",
+      "details": "File uploaded: 070c3ead-4f18-4cdd-b812-36d27bced1f9",
       "error": "",
-      "timestamp": "2025-11-06T09:27:48.167703"
+      "timestamp": "2025-11-06T09:29:29.291471"
     },
     {
       "test_name": "Status - Create",
-      "status": "FAIL",
-      "details": "",
-      "error": "Status: 422",
-      "timestamp": "2025-11-06T09:27:48.222333"
+      "status": "PASS",
+      "details": "Status created: ed5bbf1f-ff60-46d5-8dc9-f473f33bd0de",
+      "error": "",
+      "timestamp": "2025-11-06T09:29:29.397083"
     },
     {
       "test_name": "Status - Get All",
       "status": "PASS",
       "details": "Retrieved 0 statuses",
       "error": "",
-      "timestamp": "2025-11-06T09:27:48.277184"
+      "timestamp": "2025-11-06T09:29:29.474248"
     },
     {
       "test_name": "Socket.IO - Connection Test",
       "status": "PASS",
       "details": "Socket.IO endpoint accessible",
       "error": "",
-      "timestamp": "2025-11-06T09:27:48.328694"
+      "timestamp": "2025-11-06T09:29:29.662010"
     }
   ],
   "user_data": {
@@ -93,9 +93,9 @@
     "phone_number": "+15551234567",
     "email": null,
     "username": "user_000a6c6a",
-    "display_name": "+15551234567",
+    "display_name": "Test User Updated",
     "avatar_url": null,
-    "about": "",
+    "about": "Testing WA messaging app",
     "public_key": null,
     "identity_key": null,
     "created_at": "2025-11-06T09:27:47.747128+00:00",
@@ -110,13 +110,13 @@
     }
   },
   "device_data": {
-    "id": "b12bc560-bea1-4028-b37e-165a7ced8192",
+    "id": "0a0e554f-622e-46f6-9f7d-c49c75f6b318",
     "user_id": "b9a49b9e-ebd1-41a2-bf53-ca4bc975767d",
     "device_name": "Test Device",
     "device_type": "web",
     "public_key": "test_public_key_123",
-    "created_at": "2025-11-06T09:27:47.748669+00:00",
-    "last_active": "2025-11-06T09:27:47.748672+00:00",
+    "created_at": "2025-11-06T09:29:28.516749+00:00",
+    "last_active": "2025-11-06T09:29:28.516754+00:00",
     "is_active": true
   }
 }
